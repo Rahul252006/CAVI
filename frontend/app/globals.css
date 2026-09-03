@@ -207,18 +207,19 @@ input:focus, select:focus, textarea:focus {
   border-color: #2563eb !important;
 }
 
-/* --- Global Button Hover Fade Animation (Pure Color Shade Fade In/Out, No Scale or Translation) --- */
+/* --- Global Button Hover & Active Slow Fade In / Fade Out Animation (0.3s) --- */
 button,
 a,
 .soft-action,
 .soft-action-secondary,
 .btn-primary-gradient,
 [role="button"] {
-  transition: background-color 0.25s ease-in-out,
-              border-color 0.25s ease-in-out,
-              box-shadow 0.25s ease-in-out,
-              color 0.25s ease-in-out,
-              opacity 0.25s ease-in-out;
+  transition: background-color 0.3s ease-in-out,
+              background 0.3s ease-in-out,
+              border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out,
+              color 0.3s ease-in-out,
+              opacity 0.3s ease-in-out !important;
 }
 
 button:hover,
@@ -228,6 +229,12 @@ a:hover,
 .btn-primary-gradient:hover,
 [role="button"]:hover {
   transform: none !important;
+  transition: background-color 0.3s ease-in-out,
+              background 0.3s ease-in-out,
+              border-color 0.3s ease-in-out,
+              box-shadow 0.3s ease-in-out,
+              color 0.3s ease-in-out,
+              opacity 0.3s ease-in-out !important;
 }
 
 button:active,
