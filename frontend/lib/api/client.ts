@@ -34,20 +34,27 @@ export async function apiRequest<T = any>(
     'Content-Type': 'application/json',
   };
 
-  const response = await fetch(url, {
-    ...restOptions,
-    headers: {
-      ...defaultHeaders,
-      ...headers,
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      ...restOptions,
+      headers: {
+        ...defaultHeaders,
+        ...headers,
+      },
+    });
 
-  const data = await response.json().catch(() => null);
+    const data = await response.json().catch(() => null);
 
-  if (!response.ok) {
-    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
-    throw new Error(errorMessage);
+    if (!response.ok) {
+      const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+      console.warn(`[API Client Warning] ${url} (${response.status}):`, errorMessage);
+      // Return structured fallback object instead of crashing UI
+      return (data || { success: false, error: errorMessage }) as T;
+    }
+
+    return data as T;
+  } catch (err: any) {
+    console.warn(`[API Network Warning] ${url}:`, err.message);
+    return { success: false, error: err.message || 'Server connection failed' } as T;
   }
-
-  return data as T;
 }
