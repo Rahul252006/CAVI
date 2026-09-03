@@ -6,6 +6,10 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  devIndicators: {
+    buildActivity: false,
+    appIsrStatus: false,
+  },
   images: {
     unoptimized: true,
   },

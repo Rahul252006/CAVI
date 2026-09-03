@@ -260,3 +260,16 @@
     max-height: 3.5rem;
   }
 }
+
+/* --- Suppress Next.js Dev Indicator / Toast Popups --- */
+nextjs-portal,
+#__next-build-watcher,
+[data-nextjs-toast],
+[data-nextjs-dev-overlay],
+[data-nextjs-dialog-overlay],
+div[class*="nextjs-toast"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
