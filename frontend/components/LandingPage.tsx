@@ -177,8 +177,8 @@ export default function LandingPage() {
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
             <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-6">
               
-              {/* CAVI Title — Big, Bold with Grey + Black Shade Gradient */}
-              <h1 className="font-display text-7xl sm:text-8xl lg:text-[10rem] font-black tracking-tight bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
+              {/* CAVI Title — Extra Large Bold with Grey + Black Shade Gradient */}
+              <h1 className="font-display text-8xl sm:text-[11vw] lg:text-[14vw] font-black tracking-tighter bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
                 CAVI
               </h1>
 
