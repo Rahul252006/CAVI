@@ -169,9 +169,9 @@ export default function LandingPage() {
       </header>
 
       <main>
-        {/* Hero Section: with hero-gb.png Background */}
+        {/* Hero Section: Full Viewport Height with hero-gb.png Background */}
         <section
-          className="relative min-h-[85vh] flex flex-col justify-center items-center py-16 lg:py-24 bg-cover bg-center bg-no-repeat overflow-hidden border-b border-neutral-200/80"
+          className="relative h-screen min-h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat overflow-hidden border-b border-neutral-200/80"
           style={{ backgroundImage: "url('/images/hero-gb.png')" }}
         >
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
