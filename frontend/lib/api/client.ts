@@ -3,7 +3,12 @@
  * Communicates with the backend via NEXT_PUBLIC_API_URL.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+function getApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  return 'http://localhost:4000';
+}
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -15,7 +20,8 @@ export async function apiRequest<T = any>(
 ): Promise<T> {
   const { params, headers, ...restOptions } = options;
 
-  let url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const baseUrl = getApiBaseUrl();
+  let url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
   if (params) {
     const query = new URLSearchParams();
@@ -48,13 +54,12 @@ export async function apiRequest<T = any>(
     if (!response.ok) {
       const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
       console.warn(`[API Client Warning] ${url} (${response.status}):`, errorMessage);
-      // Return structured fallback object instead of crashing UI
       return (data || { success: false, error: errorMessage }) as T;
     }
 
-    return data as T;
+    return (data || { success: true }) as T;
   } catch (err: any) {
     console.warn(`[API Network Warning] ${url}:`, err.message);
-    return { success: false, error: err.message || 'Server connection failed' } as T;
+    return { success: false, error: err.message || 'Backend server connection failed' } as T;
   }
 }
