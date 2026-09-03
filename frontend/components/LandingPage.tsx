@@ -128,15 +128,15 @@ export default function LandingPage() {
               Demo
             </a>
             <a
-              href="#pricing"
-              onClick={(e) => handleScrollToSection(e, 'pricing')}
+              href="#showcase"
+              onClick={(e) => handleScrollToSection(e, 'showcase')}
               className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-300 ${
                 isDarkNavbar
                   ? 'text-neutral-300 hover:bg-white/10 hover:text-white'
                   : 'text-neutral-600 hover:bg-neutral-100/90 hover:text-neutral-950'
               }`}
             >
-              Pricing
+              Showcase
             </a>
           </nav>
 
@@ -177,9 +177,9 @@ export default function LandingPage() {
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
             <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-6">
               
-              {/* CAVI Title — Extra Large Bold with Grey + Black Shade Gradient */}
-              <h1 className="font-display text-8xl sm:text-[11vw] lg:text-[14vw] font-black tracking-tighter bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
-                CAVI
+              {/* CAVI Title — Extra Large Bold with Spacing between V and I & Grey-Black Gradient */}
+              <h1 className="font-display text-8xl sm:text-[13vw] lg:text-[16vw] font-black tracking-widest bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
+                CAV&nbsp;I
               </h1>
 
               {/* Minimized 2-Line Problem-Solving Description */}
@@ -280,164 +280,68 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="pricing">
-          {/* 1. Upper Pricing Cards with bg3 Background */}
-          <div
-            data-dark-section="true"
-            className="relative py-20 bg-cover bg-center bg-no-repeat border-t border-neutral-200"
-            style={{ backgroundImage: "url('/images/bg3.png')" }}
-          >
-            <div className="soft-shell relative z-10">
-              <div className="max-w-3xl">
-                <p className="soft-kicker text-blue-400 font-semibold">Transparent billing</p>
-                <h2 className="mt-3 text-4xl leading-tight text-white font-bold">
-                  Pay per conversation minute. No hidden platform overhead.
-                </h2>
-              </div>
-
-              {/* Pricing Cards */}
-              <div className="mt-10 grid gap-6 md:grid-cols-3">
-                {[
-                  {
-                    name: 'Starter',
-                    price: '$0.18',
-                    unit: 'conversation min',
-                    desc: '1 support phone line, standard Company Brain, Case DNA, transcripts, and multilingual voice.',
-                    highlight: false,
-                    features: ['1 Support Phone Line', 'Real-time AI Voice Agent', 'Multilingual & Code-Switching', 'Case DNA Briefs', 'Call Transcripts & Records'],
-                  },
-                  {
-                    name: 'Growth',
-                    price: '$0.15',
-                    unit: 'conversation min',
-                    desc: '3 support lines, advanced Company Brain, API voice actions, conflict detection, real-time officer portal.',
-                    highlight: true,
-                    badge: 'Recommended for Growing Teams',
-                    features: ['3 Support Phone Lines', 'Advanced Company Brain & SOPs', 'Voice Actions & Tool APIs', 'Conflict & Uncertainty Detection', 'Real-Time Officer Portal', 'Predictive Escalation'],
-                  },
-                  {
-                    name: 'Enterprise',
-                    price: '$0.12',
-                    unit: 'conversation min',
-                    desc: 'Unlimited phone lines, custom voice fine-tuning, custom integrations, dedicated SLA guarantee.',
-                    highlight: false,
-                    features: ['Unlimited Phone Lines', 'Custom Voice Fine-Tuning', 'Custom CRM / ERP Integrations', 'Dedicated Account Manager', '24/7 SLA Guarantee'],
-                  },
-                ].map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={`soft-card flex flex-col justify-between p-8 relative transition-all duration-300 ${
-                      plan.highlight
-                        ? 'border-blue-600 shadow-[0_16px_36px_rgba(37,99,235,0.12)] ring-1 ring-blue-600'
-                        : 'hover:border-neutral-300'
-                    }`}
-                  >
-                    {plan.badge && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-md">
-                        {plan.badge}
-                      </div>
-                    )}
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-neutral-950">{plan.name}</h3>
-                        {plan.highlight && <Sparkles className="h-4 w-4 text-blue-600" />}
-                      </div>
-                      <div className="mt-4 flex items-baseline gap-1">
-                        <span className="text-4xl font-bold text-neutral-950">{plan.price}</span>
-                        <span className="text-xs font-medium text-neutral-500">/{plan.unit}</span>
-                      </div>
-                      <p className="mt-3 text-xs leading-5 text-neutral-500">{plan.desc}</p>
-
-                      <div className="mt-6 space-y-2 border-t border-neutral-100 pt-5">
-                        {plan.features.map((f) => (
-                          <div key={f} className="flex items-center gap-2 text-xs font-medium text-neutral-700">
-                            <Check className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-                            <span>{f}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Link
-                      href="/admin/login?intent=onboard"
-                      className={plan.highlight ? 'soft-action mt-8 w-full justify-center' : 'soft-action-secondary mt-8 w-full justify-center'}
-                    >
-                      Choose {plan.name}
-                    </Link>
-                  </div>
-                ))}
-              </div>
+        {/* Interactive Showcase & Highlighted 3D Liquid Button Section */}
+        <section id="showcase" data-dark-section="true" className="relative py-24 bg-cover bg-center bg-no-repeat overflow-hidden border-t border-neutral-900" style={{ backgroundImage: "url('/images/bg3.png')" }}>
+          <div className="soft-shell relative z-10 flex flex-col items-center justify-center text-center">
+            
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 backdrop-blur-xl shadow-lg mb-6">
+              <Sparkles className="h-4 w-4 text-blue-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-300">Next-Gen Voice Intelligence Engine</span>
             </div>
-          </div>
 
-          {/* 2. Lower Feature Comparison Table on Clean Background */}
-          <div className="bg-slate-50/70 py-16 border-b border-neutral-200">
-            <div className="soft-shell">
-              <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
-                <div className="border-b border-neutral-200 bg-neutral-50/80 px-6 py-4">
-                  <h3 className="font-display text-lg font-bold text-neutral-950">Detailed Tier Feature Comparison</h3>
-                  <p className="text-xs text-neutral-500">Everything you need to deliver seamless, context-preserving voice support.</p>
+            <h2 className="max-w-3xl text-4xl sm:text-5xl font-black text-white leading-tight drop-shadow-md">
+              Transform Your Customer Resolution Pipeline Today
+            </h2>
+            <p className="mt-4 max-w-xl text-base sm:text-lg text-neutral-300 font-medium leading-relaxed">
+              Experience natural multilingual AI voice assistance with zero-repeat human officer handoffs. Onboard your company or test the voice line instantly.
+            </p>
+
+            {/* Feature Cards Grid */}
+            <div className="mt-12 grid gap-6 sm:grid-cols-3 max-w-5xl w-full text-left">
+              {[
+                {
+                  title: 'Real-Time Voice AI',
+                  desc: 'Listens naturally in English, Hindi, Tamil, or Hinglish with low latency and background noise resilience.',
+                },
+                {
+                  title: 'Company Brain SOPs',
+                  desc: 'Embed your FAQs, policies, and tool APIs so the AI resolves safe requests autonomously.',
+                },
+                {
+                  title: 'Zero-Repeat Handoff',
+                  desc: 'When AI reaches policy limits, human specialists receive complete Case DNA briefs before taking over.',
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition duration-300 hover:border-blue-500/40 hover:bg-white/10 hover:-translate-y-1">
+                  <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                  <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed">{item.desc}</p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-neutral-200 bg-neutral-50/40 text-neutral-500">
-                        <th className="py-3.5 pl-6 pr-4 font-semibold">Feature</th>
-                        <th className="px-4 py-3.5 text-center font-semibold text-neutral-900">Starter ($0.18/min)</th>
-                        <th className="px-4 py-3.5 text-center font-bold text-blue-600">Growth ($0.15/min)</th>
-                        <th className="py-3.5 pl-4 pr-6 text-center font-semibold text-neutral-900">Enterprise ($0.12/min)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-100 text-neutral-700">
-                      {[
-                        { name: 'Support phone lines', starter: '1 line', growth: '3 lines', enterprise: 'Unlimited' },
-                        { name: 'Real-time AI voice agent', starter: true, growth: true, enterprise: true },
-                        { name: 'Multilingual & Code-switching', starter: true, growth: true, enterprise: true },
-                        { name: 'Natural interruption handling & noise resilience', starter: true, growth: true, enterprise: true },
-                        { name: 'Smart confirmation of critical details', starter: true, growth: true, enterprise: true },
-                        { name: 'Company Brain / Knowledge Base', starter: 'Standard', growth: 'Advanced', enterprise: 'Custom' },
-                        { name: 'Call transcripts, sentiment & records', starter: true, growth: true, enterprise: true },
-                        { name: 'Customer intent & fact detection', starter: true, growth: true, enterprise: true },
-                        { name: 'Voice-based actions & tool APIs', starter: false, growth: true, enterprise: true },
-                        { name: 'Conflict & uncertainty detection', starter: false, growth: true, enterprise: true },
-                        { name: 'Case DNA (automated context brief)', starter: true, growth: true, enterprise: true },
-                        { name: 'Intelligent officer routing', starter: false, growth: true, enterprise: true },
-                        { name: 'Real-time officer portal', starter: false, growth: true, enterprise: true },
-                        { name: 'Predictive escalation', starter: false, growth: true, enterprise: true },
-                        { name: 'Custom voice fine-tuning', starter: false, growth: false, enterprise: true },
-                        { name: 'Custom integrations (CRM / ERP)', starter: false, growth: false, enterprise: true },
-                        { name: 'SLA guarantee', starter: false, growth: false, enterprise: true },
-                      ].map((row) => (
-                        <tr key={row.name} className="hover:bg-neutral-50/50 transition-colors">
-                          <td className="py-3 pl-6 pr-4 font-medium text-neutral-900">{row.name}</td>
-                          <td className="px-4 py-3 text-center">
-                            {typeof row.starter === 'boolean' ? (
-                              row.starter ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <Minus className="mx-auto h-4 w-4 text-neutral-300" />
-                            ) : (
-                              <span className="font-semibold text-neutral-900">{row.starter}</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center bg-blue-50/20">
-                            {typeof row.growth === 'boolean' ? (
-                              row.growth ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <Minus className="mx-auto h-4 w-4 text-neutral-300" />
-                            ) : (
-                              <span className="font-bold text-blue-700">{row.growth}</span>
-                            )}
-                          </td>
-                          <td className="py-3 pl-4 pr-6 text-center">
-                            {typeof row.enterprise === 'boolean' ? (
-                              row.enterprise ? <Check className="mx-auto h-4 w-4 text-blue-600" /> : <Minus className="mx-auto h-4 w-4 text-neutral-300" />
-                            ) : (
-                              <span className="font-semibold text-neutral-900">{row.enterprise}</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              ))}
             </div>
+
+            {/* HIGHLIGHTED 3D LIQUID GLASS BUTTON */}
+            <div className="mt-14 relative group">
+              {/* Outer 3D Ambient Glow */}
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 opacity-75 blur-xl group-hover:opacity-100 group-hover:blur-2xl transition duration-500 animate-pulse" />
+              
+              {/* Main 3D Liquid Button */}
+              <Link
+                href="/admin/login?intent=onboard"
+                className="relative inline-flex items-center justify-center gap-3 rounded-full px-10 py-5 text-lg font-extrabold text-white transition-all duration-300 transform active:scale-95 group-hover:-translate-y-1
+                           bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 
+                           border-2 border-white/40 shadow-[0_20px_50px_rgba(37,99,235,0.5),inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-4px_6px_rgba(0,0,0,0.4)]
+                           backdrop-blur-2xl overflow-hidden select-none"
+              >
+                {/* Liquid Glass Highlight Shimmer Effect */}
+                <span className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/35 to-transparent rounded-t-full pointer-events-none" />
+                <span className="absolute -left-10 top-0 w-12 h-full bg-white/30 rotate-12 blur-xs group-hover:translate-x-[400px] transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+                <Building2 className="h-6 w-6 text-white drop-shadow-md" />
+                <span className="drop-shadow-md tracking-wide">Launch CAVI Resolution Engine</span>
+                <ArrowRight className="h-6 w-6 text-white drop-shadow-md group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
           </div>
         </section>
 
