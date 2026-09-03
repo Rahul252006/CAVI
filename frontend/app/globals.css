@@ -140,7 +140,7 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* --- Primary Button: Rich Blue (matching open customer call line button) --- */
+/* --- Primary Button: Rich Blue Gradient --- */
 .soft-action,
 .btn-primary-gradient {
   display: inline-flex;
@@ -151,18 +151,18 @@
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
-  background-color: #2563eb;
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
   color: #ffffff !important;
-  border: 1px solid #2563eb;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -2px rgba(37, 99, 235, 0.1);
-  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+  border: 1px solid rgba(29, 78, 216, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25), 0 2px 4px -2px rgba(37, 99, 235, 0.15);
+  transition: background 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
   cursor: pointer;
 }
 
 .soft-action:hover,
 .btn-primary-gradient:hover {
-  background-color: #1d4ed8;
-  border-color: #1d4ed8;
+  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
+  border-color: rgba(30, 64, 175, 0.6);
   color: #ffffff !important;
 }
 

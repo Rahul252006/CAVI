@@ -369,7 +369,7 @@ export default function CustomerCallInterfacePage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-3 rounded-full bg-blue-600 hover:bg-blue-700/90 text-white font-bold py-3.5 text-xs sm:text-sm shadow-md hover:shadow-lg transition-colors duration-300 flex items-center justify-center gap-2.5 disabled:opacity-80"
+                className="w-full mt-3 rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-3.5 text-xs sm:text-sm shadow-md transition-colors duration-300 flex items-center justify-center gap-2.5 disabled:opacity-80 border border-blue-600/40"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2.5">

@@ -194,7 +194,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                 <Link
                   href="/admin/login?intent=onboard"
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md transition-colors duration-200 min-w-[200px]"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white border border-blue-600/40 shadow-md transition-colors duration-200 min-w-[200px]"
                 >
                   <Building2 className="h-4 w-4 text-white" />
                   <span>Onboard Company</span>
