@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowRight,
+  Brain,
   Building2,
   Check,
   Minus,
   PhoneCall,
+  ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -182,10 +184,10 @@ export default function LandingPage() {
                 CAVI
               </h1>
 
-              {/* Minimized 2-Line Problem-Solving Description in Simple English */}
+              {/* Simple Plain English 2-Line Description */}
               <div className="max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-neutral-700 mb-10 space-y-1.5">
-                <p>CAVI handles customer support calls for your business in clear English, Hindi, and Tamil.</p>
-                <p>If a call gets complicated, it transfers the customer to a real team member with all the details ready.</p>
+                <p>CAVI answers your customer phone calls automatically in English, Hindi, and Tamil.</p>
+                <p>If a call needs a human, CAVI sends the full summary to your team so customers never repeat themselves.</p>
               </div>
 
               {/* Redesigned Rounded-Full Action Buttons */}
@@ -239,10 +241,10 @@ export default function LandingPage() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
-                ['Customer Dials', 'A customer calls your support line directly from any standard phone.'],
-                ['Smart Match', 'CAVI identifies your company rules and loads the correct support brain.'],
-                ['Instant Answers', 'The AI answers questions, checks order status, and handles requests.'],
-                ['Seamless Handoff', 'If human help is required, your team receives the summary before answering.'],
+                ['Customer dials', 'A customer calls the company support number from a normal phone.'],
+                ['Tenant loads', 'The destination number selects the correct company configuration.'],
+                ['AI resolves', 'CAVI checks policies and executes only approved actions.'],
+                ['Officer receives', 'If a human is needed, the support desk gets a structured Case DNA brief.'],
               ].map(([title, text]) => (
                 <div key={title} className="soft-card p-5 transition duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_10px_30px_rgba(37,99,235,0.08)]">
                   <h3 className="font-semibold text-neutral-950">{title}</h3>
@@ -258,18 +260,18 @@ export default function LandingPage() {
             <div className="lg:col-span-1">
               <p className="soft-kicker text-blue-600">Company Brain</p>
               <h2 className="mt-3 text-4xl leading-tight text-neutral-950">
-                You control everything the AI knows and does.
+                The AI only knows what the company owner configures.
               </h2>
               <p className="mt-4 text-base leading-7 text-neutral-500">
-                Set custom policies, allowed actions, agent personality, and human escalation rules for your company.
+                Each tenant defines identity, tone, allowed tools, confirmation thresholds, and escalation rules.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
               {[
-                ['Language & Tone', 'Set your preferred language, friendly tone, and automatic language switching.'],
-                ['Safe Action Boundaries', 'Decide what tasks AI can perform automatically vs. what needs staff approval.'],
-                ['Company SOPs & FAQs', 'Add your refund policies, FAQs, and product details into the AI brain.'],
-                ['Context Summary', 'Staff receives a neat summary of what was spoken before joining the call.'],
+                ['Identity & Voice', 'Agent name, tone, primary language, and automatic code-switching.'],
+                ['Policy Boundaries', 'What the AI can do on its own vs. what requires human confirmation.'],
+                ['Live SOPs', 'Company documents and support runbooks embedded directly into the prompt.'],
+                ['Human Escalation', 'Structured handoff brief sent directly to the online officer.'],
               ].map(([title, text]) => (
                 <div key={title} className="soft-card p-6">
                   <h3 className="text-lg font-semibold text-neutral-950">{title}</h3>
@@ -280,105 +282,91 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Product Details Section: Case DNA & Zero-Repeat Transfers */}
-        <section id="case-dna" className="py-20 bg-slate-50/70 border-b border-neutral-200">
-          <div className="soft-shell grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="soft-kicker text-blue-600">Case DNA</p>
-              <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-neutral-950 leading-tight">
-                No repeated stories. Staff get full context instantly.
-              </h2>
-              <p className="mt-4 text-base text-neutral-600 leading-relaxed">
-                When a call is transferred to your support team, CAVI generates a clean Case DNA brief. Your team instantly sees who called, what they asked, verified facts, and why human help was requested.
-              </p>
-              <div className="mt-6 space-y-3">
-                {[
-                  'Automatic call transcript and sentiment tracking',
-                  'Verified customer intent and conflict alerts',
-                  'One-click officer acceptance and call pickup',
-                ].map((point) => (
-                  <div key={point} className="flex items-center gap-3 text-sm font-medium text-neutral-800">
-                    <div className="h-2 w-2 rounded-full bg-blue-600" />
-                    <span>{point}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="soft-card p-8 bg-white border border-neutral-200 shadow-sm rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Case Brief #8492</span>
-                <span className="text-xs font-semibold text-neutral-500">Live Handoff</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-neutral-900">Caller: Priya Sharma (+91 98765 43210)</h4>
-                <p className="text-xs text-neutral-600 mt-1">Intent: Flight Reschedule & Luggage Query</p>
-              </div>
-              <div className="rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700 space-y-1">
-                <p><span className="font-semibold text-neutral-900">Verified:</span> Booking ID #FL-9021, Original Date: Oct 12</p>
-                <p><span className="font-semibold text-neutral-900">Status:</span> AI approved date change; requires human confirmation for baggage waiver.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Minimal Showcase & Highlighted 3D Liquid Button Section */}
+        {/* Clean Showcase Section (with bg3 Background & Solid White Button) */}
         <section id="showcase" data-dark-section="true" className="relative py-20 bg-cover bg-center bg-no-repeat overflow-hidden border-t border-neutral-900" style={{ backgroundImage: "url('/images/bg3.png')" }}>
           <div className="soft-shell relative z-10 flex flex-col items-center justify-center text-center">
             
-            <h2 className="max-w-2xl text-3xl sm:text-4xl font-extrabold text-white leading-tight drop-shadow-md">
-              Ready to resolve customer calls with CAVI?
+            <h2 className="max-w-2xl text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+              Start handling customer calls effortlessly with CAVI
             </h2>
-            <p className="mt-3 max-w-lg text-sm sm:text-base text-neutral-300 font-medium">
-              Customer Assistance through Voice Intelligence — Onboard in under 5 minutes.
+            <p className="mt-3 max-w-lg text-sm sm:text-base text-neutral-300 font-normal">
+              Set up your AI voice assistant in under 5 minutes and connect your support numbers.
             </p>
 
-            {/* HIGHLIGHTED 3D LIQUID GLASS BUTTON */}
-            <div className="mt-10 relative group">
-              {/* Outer 3D Ambient Glow */}
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 opacity-75 blur-xl group-hover:opacity-100 group-hover:blur-2xl transition duration-500 animate-pulse" />
-              
-              {/* Main 3D Liquid Button */}
+            {/* Clean Solid White Button (No Gradients or Ambient Effects) */}
+            <div className="mt-8">
               <Link
                 href="/admin/login?intent=onboard"
-                className="relative inline-flex items-center justify-center gap-3 rounded-full px-9 py-4 text-base sm:text-lg font-extrabold text-white transition-all duration-300 transform active:scale-95 group-hover:-translate-y-1
-                           bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 
-                           border-2 border-white/40 shadow-[0_20px_50px_rgba(37,99,235,0.5),inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-4px_6px_rgba(0,0,0,0.4)]
-                           backdrop-blur-2xl overflow-hidden select-none"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-base font-semibold rounded-full bg-white text-neutral-950 hover:bg-neutral-100 shadow-sm border border-white transition-all duration-200"
               >
-                {/* Liquid Glass Highlight Shimmer Effect */}
-                <span className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/35 to-transparent rounded-t-full pointer-events-none" />
-                <span className="absolute -left-10 top-0 w-12 h-full bg-white/30 rotate-12 blur-xs group-hover:translate-x-[400px] transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-                <Building2 className="h-5 w-5 text-white drop-shadow-md" />
-                <span className="drop-shadow-md tracking-wide">Launch CAVI Engine</span>
-                <ArrowRight className="h-5 w-5 text-white drop-shadow-md group-hover:translate-x-1 transition-transform" />
+                <Building2 className="h-5 w-5 text-neutral-950" />
+                <span>Onboard Company</span>
+                <ArrowRight className="h-4 w-4 text-neutral-950" />
               </Link>
             </div>
 
           </div>
         </section>
 
-        {/* Clean White Gap Section (Separating Showcase from Footer) */}
-        <section className="bg-slate-50/80 py-12 border-b border-neutral-200">
-          <div className="soft-shell flex flex-col items-center justify-center text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
-              Enterprise Voice Resolution Infrastructure
-            </p>
+        {/* Product Capabilities & Features (Clean White Area between Showcase and Footer) */}
+        <section className="bg-slate-50/90 py-20 border-b border-neutral-200">
+          <div className="soft-shell">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">How CAVI Works</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-neutral-950 leading-tight">
+                Built to handle customer calls smoothly
+              </h2>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+              {/* Feature 1 */}
+              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
+                <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center mb-6">
+                  <PhoneCall className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-neutral-950 mb-3">Speaks Naturally</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">
+                  CAVI talks comfortably in English, Hindi, and Tamil. It understands different accents, handles background noise, and lets callers speak freely without pressing keypad buttons.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
+                <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
+                  <Brain className="h-6 w-6 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-neutral-950 mb-3">Learns Your Business</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">
+                  Connect your FAQs, refund rules, and order lookup systems. CAVI checks real-time database information to give accurate answers and perform simple tasks safely.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
+                <div className="h-12 w-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-6">
+                  <ShieldCheck className="h-6 w-6 text-cyan-600" />
+                </div>
+                <h3 className="text-xl font-bold text-neutral-950 mb-3">Zero-Repeat Team Handoff</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">
+                  When a call needs a human touch, your support team receives a complete call summary with caller details and verified facts before answering the line.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section data-dark-section="true" className="bg-neutral-950 py-16 text-white">
+        {/* Clean Pre-Footer Call to Action */}
+        <section data-dark-section="true" className="bg-neutral-950 py-16 text-white border-t border-neutral-900">
           <div className="soft-shell flex flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
             <div>
-              <h2 className="text-3xl font-semibold">Ready to resolve customer calls with CAVI?</h2>
+              <h2 className="text-3xl font-bold">Ready to resolve customer calls with CAVI?</h2>
               <p className="mt-2 text-sm text-neutral-400">
-                Customer Assistance through Voice Intelligence. Onboard in under 5 minutes.
+                Set up your support lines and Company Brain in under 5 minutes.
               </p>
             </div>
-            {/* Normal Clean Single White Button Without Gradient Effects */}
             <Link
               href="/admin/login?intent=onboard"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-semibold text-neutral-950 hover:bg-neutral-100 shadow-sm border border-neutral-200 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-full bg-white text-neutral-950 hover:bg-neutral-100 transition-all duration-200 shadow-sm"
             >
               Onboard Company Now
             </Link>
