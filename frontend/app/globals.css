@@ -213,36 +213,36 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* --- Global Button Hover Micro-Animation (Throughout Whole Site Everywhere) --- */
+/* --- Global Button Hover Fade Animation (Pure Color Shade Fade In/Out, No Scale or Translation) --- */
 button,
 a,
 .soft-action,
 .soft-action-secondary,
 .btn-primary-gradient,
 [role="button"] {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.25s ease-in-out,
+  transition: background-color 0.25s ease-in-out,
               border-color 0.25s ease-in-out,
-              opacity 0.2s ease-in-out;
+              box-shadow 0.25s ease-in-out,
+              color 0.25s ease-in-out,
+              opacity 0.25s ease-in-out;
 }
 
 button:hover,
-a.inline-flex:hover,
+a:hover,
 .soft-action:hover,
 .soft-action-secondary:hover,
 .btn-primary-gradient:hover,
 [role="button"]:hover {
-  transform: translateY(-1.5px) scale(1.015);
+  transform: none !important;
 }
 
 button:active,
-a.inline-flex:active,
+a:active,
 .soft-action:active,
 .soft-action-secondary:active,
 .btn-primary-gradient:active,
 [role="button"]:active {
-  transform: translateY(0px) scale(0.985);
+  transform: none !important;
 }
 
 /* --- Animations --- */

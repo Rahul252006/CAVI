@@ -366,11 +366,10 @@ export default function CustomerCallInterfacePage() {
                 </p>
               </div>
 
-              {/* SUBMIT BUTTON WITH INTERACTIVE LOADING ANIMATION */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2.5 disabled:opacity-80 active:scale-98"
+                className="w-full mt-3 rounded-full bg-blue-600 hover:bg-blue-700/90 text-white font-bold py-3.5 text-xs sm:text-sm shadow-md hover:shadow-lg transition-colors duration-300 flex items-center justify-center gap-2.5 disabled:opacity-80"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2.5">
