@@ -177,9 +177,9 @@ export default function LandingPage() {
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
             <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-6">
               
-              {/* CAVI Title — Extra Large Bold with Spacing between V and I & Grey-Black Gradient */}
-              <h1 className="font-display text-8xl sm:text-[13vw] lg:text-[16vw] font-black tracking-widest bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
-                CAV&nbsp;I
+              {/* CAVI Title — Ultra Bold Single Word with Tiny Letter Gap (matching footer) */}
+              <h1 className="font-display text-8xl sm:text-[13vw] lg:text-[16vw] font-black tracking-[0.04em] bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
+                CAVI
               </h1>
 
               {/* Minimized 2-Line Problem-Solving Description */}
@@ -280,54 +280,26 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Interactive Showcase & Highlighted 3D Liquid Button Section */}
-        <section id="showcase" data-dark-section="true" className="relative py-24 bg-cover bg-center bg-no-repeat overflow-hidden border-t border-neutral-900" style={{ backgroundImage: "url('/images/bg3.png')" }}>
+        {/* Minimal Showcase & Highlighted 3D Liquid Button Section */}
+        <section id="showcase" data-dark-section="true" className="relative py-20 bg-cover bg-center bg-no-repeat overflow-hidden border-t border-neutral-900" style={{ backgroundImage: "url('/images/bg3.png')" }}>
           <div className="soft-shell relative z-10 flex flex-col items-center justify-center text-center">
             
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 backdrop-blur-xl shadow-lg mb-6">
-              <Sparkles className="h-4 w-4 text-blue-400 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-300">Next-Gen Voice Intelligence Engine</span>
-            </div>
-
-            <h2 className="max-w-3xl text-4xl sm:text-5xl font-black text-white leading-tight drop-shadow-md">
-              Transform Your Customer Resolution Pipeline Today
+            <h2 className="max-w-2xl text-3xl sm:text-4xl font-extrabold text-white leading-tight drop-shadow-md">
+              Ready to resolve customer calls with CAVI?
             </h2>
-            <p className="mt-4 max-w-xl text-base sm:text-lg text-neutral-300 font-medium leading-relaxed">
-              Experience natural multilingual AI voice assistance with zero-repeat human officer handoffs. Onboard your company or test the voice line instantly.
+            <p className="mt-3 max-w-lg text-sm sm:text-base text-neutral-300 font-medium">
+              Customer Assistance through Voice Intelligence — Onboard in under 5 minutes.
             </p>
 
-            {/* Feature Cards Grid */}
-            <div className="mt-12 grid gap-6 sm:grid-cols-3 max-w-5xl w-full text-left">
-              {[
-                {
-                  title: 'Real-Time Voice AI',
-                  desc: 'Listens naturally in English, Hindi, Tamil, or Hinglish with low latency and background noise resilience.',
-                },
-                {
-                  title: 'Company Brain SOPs',
-                  desc: 'Embed your FAQs, policies, and tool APIs so the AI resolves safe requests autonomously.',
-                },
-                {
-                  title: 'Zero-Repeat Handoff',
-                  desc: 'When AI reaches policy limits, human specialists receive complete Case DNA briefs before taking over.',
-                },
-              ].map((item) => (
-                <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition duration-300 hover:border-blue-500/40 hover:bg-white/10 hover:-translate-y-1">
-                  <h3 className="text-lg font-bold text-white">{item.title}</h3>
-                  <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-
             {/* HIGHLIGHTED 3D LIQUID GLASS BUTTON */}
-            <div className="mt-14 relative group">
+            <div className="mt-10 relative group">
               {/* Outer 3D Ambient Glow */}
               <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600 opacity-75 blur-xl group-hover:opacity-100 group-hover:blur-2xl transition duration-500 animate-pulse" />
               
               {/* Main 3D Liquid Button */}
               <Link
                 href="/admin/login?intent=onboard"
-                className="relative inline-flex items-center justify-center gap-3 rounded-full px-10 py-5 text-lg font-extrabold text-white transition-all duration-300 transform active:scale-95 group-hover:-translate-y-1
+                className="relative inline-flex items-center justify-center gap-3 rounded-full px-9 py-4 text-base sm:text-lg font-extrabold text-white transition-all duration-300 transform active:scale-95 group-hover:-translate-y-1
                            bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 
                            border-2 border-white/40 shadow-[0_20px_50px_rgba(37,99,235,0.5),inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-4px_6px_rgba(0,0,0,0.4)]
                            backdrop-blur-2xl overflow-hidden select-none"
@@ -336,12 +308,21 @@ export default function LandingPage() {
                 <span className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/35 to-transparent rounded-t-full pointer-events-none" />
                 <span className="absolute -left-10 top-0 w-12 h-full bg-white/30 rotate-12 blur-xs group-hover:translate-x-[400px] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-                <Building2 className="h-6 w-6 text-white drop-shadow-md" />
-                <span className="drop-shadow-md tracking-wide">Launch CAVI Resolution Engine</span>
-                <ArrowRight className="h-6 w-6 text-white drop-shadow-md group-hover:translate-x-1 transition-transform" />
+                <Building2 className="h-5 w-5 text-white drop-shadow-md" />
+                <span className="drop-shadow-md tracking-wide">Launch CAVI Engine</span>
+                <ArrowRight className="h-5 w-5 text-white drop-shadow-md group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
+          </div>
+        </section>
+
+        {/* Clean White Gap Section (Separating Showcase from Footer) */}
+        <section className="bg-slate-50/80 py-12 border-b border-neutral-200">
+          <div className="soft-shell flex flex-col items-center justify-center text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+              Enterprise Voice Resolution Infrastructure
+            </p>
           </div>
         </section>
 
