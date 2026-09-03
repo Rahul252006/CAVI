@@ -400,9 +400,10 @@ export default function LandingPage() {
             </div>
             <Link
               href="/admin/login?intent=onboard"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-full bg-white text-neutral-950 hover:bg-neutral-100 transition-all duration-200 shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white border border-blue-600/40 shadow-md transition-colors duration-200"
             >
-              Onboard Company Now
+              <Building2 className="h-4 w-4 text-white" />
+              <span>Onboard Company Now</span>
             </Link>
           </div>
         </section>
