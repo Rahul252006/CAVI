@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from 'next';
+import { Lora } from 'next/font/google';
 import './globals.css';
+
+const lora = Lora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-lora',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -8,9 +16,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Talk to your voice agent | Agora',
+  title: 'CAVI | Customer Assistance through Voice Intelligence',
   description:
-    "Next.js quickstart: real-time voice agent with live transcript, streaming audio, and low latency from Agora's Conversational AI Engine—API routes in one repo.",
+    'CAVI (Customer Assistance through Voice Intelligence) - Multilingual voice resolution platform that resolves customer requests and escalates complex cases with complete context.',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -39,8 +47,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full min-h-screen">{children}</body>
+    <html lang="en" className={`h-full scroll-smooth ${lora.variable}`}>
+      <body className={`h-full min-h-screen ${lora.className} antialiased`}>{children}</body>
     </html>
   );
 }

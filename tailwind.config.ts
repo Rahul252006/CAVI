@@ -12,7 +12,8 @@ const config: Config = {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-lora)', 'Lora', 'Georgia', 'serif'],
+        display: ['var(--font-lora)', 'Lora', 'Georgia', 'serif'],
       },
   		colors: {
         // The <alpha-value> placeholder enables Tailwind opacity modifiers like

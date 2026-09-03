@@ -1,200 +1,193 @@
-# Agora Conversational AI Next.js Quickstart
+# CAVI — Customer Assistance through Voice Intelligence
 
-[![Build](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml/badge.svg)](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org/)
+<div align="center">
 
-Build a production-style voice agent in minutes with Next.js and the Agora Conversational AI Engine, including voice agent visualizer ([Agent UIKit](https://agoraio-conversational-ai.github.io/agent-uikit/)), live transcript, and real-time pipeline latency via `AGENT_METRICS` ([Agent Toolkit](https://github.com/AgoraIO-Conversational-AI/agent-client-toolkit-ts)).
+**AI-powered customer assistance, built for every conversation. Designed for resolution.**
 
-## Prerequisites
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-green?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![Agora](https://img.shields.io/badge/Agora-Conversational_AI-099DFD?style=for-the-badge&logo=agora)](https://www.agora.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-- [Node.js 22+](https://nodejs.org/en/download/)
-- [pnpm](https://pnpm.io/installation)
-- [Agora CLI](https://github.com/AgoraIO-Community/cli)
+[**Live Demo**](http://localhost:3000) • [**Customer Calling Line**](http://localhost:3000/call) • [**Officer Portal**](http://localhost:3000/agent/login) • [**Company Admin**](http://localhost:3000/admin/login) • [**Documentation**](http://localhost:3000/docs)
 
-## Run It
+</div>
 
-Getting started is quick and easy: install the CLI _(skip if you already have it)_ , scaffold the Next.js quickstart using the Agora CLI, install dependencies, and run.
+---
 
-1. **Install the Agora CLI and sign in**
-   _(skip if `agora` is already on your PATH)_:
+## 🌟 Overview
 
-   macOS and Linux:
+**CAVI** (*Customer Assistance through Voice Intelligence*) is an enterprise-grade, real-time voice resolution platform. It connects a company's dedicated support phone line to custom knowledge bases, operational policies, and verified API toolchains.
 
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/AgoraIO/cli/main/install.sh | sh -s -- --add-to-path
-   ```
+Instead of traditional IVR mazes or generic chatbots, CAVI listens to customers speaking naturally, handles interruptions seamlessly, verifies critical details, executes authorized API actions, and—when human judgement is needed—escalates the case to the right human officer with **Case DNA** (a full context brief) so the caller never repeats their story.
 
-   Windows PowerShell:
+```
+                  ┌─────────────────────────────────────────────────────────┐
+                  │                 Customer Calls In                       │
+                  │   (Speaks naturally in Hindi / English / Code-Switched) │
+                  └────────────────────────────┬────────────────────────────┘
+                                               │
+                                               ▼
+                              ┌───────────────────────────────────┐
+                              │      CAVI Voice Intelligence       │
+                              │  (VAD Interruption / Confidence)  │
+                              └────────────────┬──────────────────┘
+                                               │
+                       ┌───────────────────────┴───────────────────────┐
+                       │                                               │
+          [Confidence High & Policy Match]                 [Low Confidence / Dispute]
+                       │                                               │
+                       ▼                                               ▼
+       ┌───────────────────────────────┐               ┌───────────────────────────────┐
+       │   Automated Voice Action      │               │   Context-Preserving Handoff  │
+       │   - Knowledge Resolution      │               │   - Case DNA Generated        │
+       │   - Secure API Execution      │               │   - Routed to Right Officer   │
+       │   - Verification & Receipt    │               │   - Zero Repeat Conversation  │
+       └───────────────────────────────┘               └───────────────────────────────┘
+```
 
-   ```powershell
-   irm https://dl.agora.io/cli/install.ps1 | iex
-   ```
+---
 
-   If the Windows install command fails in PowerShell, try running the macOS/Linux command from [Git Bash](https://git-scm.com/downloads/win), then open a new terminal and run `agora --help` to confirm the CLI is on your PATH.
+## ✨ Core Features
 
-   Then verify and sign in:
+### 🎙️ 1. Ultra-Low-Latency Conversational Voice
+- **Agora WebRTC Audio Pipeline:** Sub-400ms end-to-end voice latency for real-time natural interaction.
+- **Multilingual & Code-Switching:** Seamlessly understands callers switching between Hindi, English, and regional languages in the same sentence.
+- **Natural Interruption Handling:** Active Voice Activity Detection (VAD) stops AI speech instantly when the caller speaks.
+- **Background Noise Resilience:** Tuned for noisy environments, crowds, and imperfect audio inputs.
 
-   ```bash
-   agora --help
-   agora login
-   ```
+### 🧠 2. Isolated Multi-Tenant "Company Brain"
+- **Zero Hallucination Guardrails:** Agents answer strictly from company-uploaded knowledge documents and SOP policies.
+- **Action Verification Rules:** Configurable thresholds for automated refunds, booking edits, and account modifications.
+- **Safety Boundaries:** Built-in safeguards prohibiting unauthorized claims, speculative promises, and sensitive operations.
 
-   If `agora --help` is not found after install, close and reopen your terminal, then try again. If it still fails, check that the installer-added Agora CLI location is on your shell `PATH`.
+### 🧬 3. Case DNA & Human Escalation
+- **Zero-Repeat Philosophy:** Generates structured Case DNA summarizing intent, verified details, attempted resolutions, and emotional state.
+- **Intelligent Officer Routing:** Transfers complex or sensitive calls directly to active human officers based on department and specialty.
+- **Live Officer Dashboard:** Real-time synchronized queue with live sentiment, health score metrics, and transcript feeds.
 
-2. **Scaffold and run**
-   `agora init` clones the starter, binds an Agora project, and writes `.env.local`. (replace `my-nextjs-demo` with your own project name):
+### 🗄️ 4. Persistent MongoDB Storage
+- **Isolated Tenant Models:** Dedicated collections for companies, knowledge documents, brain configurations, officer accounts, call records, and tool configs.
+- **Real-Time Synchronized State:** Fallback persistence guarantees high availability and data integrity.
 
-   ```bash
-   agora init my-nextjs-demo --template nextjs
-   cd my-nextjs-demo
-   pnpm install
-   pnpm dev
-   ```
+---
 
-3. Open [http://localhost:3000](http://localhost:3000) and click **Start conversation**.
+## 🏗️ Tech Stack
 
-If the agent does not join or transcripts do not appear, run **`agora project doctor --deep`** to check credentials, feature enablement, network reachability, and local env binding.
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 14 (App Router), React 18, TypeScript |
+| **Styling** | Vanilla Tailwind CSS, Lora Typography, Glassmorphic Tokens |
+| **Voice Engine** | Agora RTC Engine & Agora Conversational AI SDK |
+| **Database** | MongoDB & Native Driver (`mongodb`) |
+| **Icons** | Lucide React |
+| **Deployment** | Vercel / Node.js Standalone Container |
 
-### Working from a clone of this repository
+---
 
-Use this path if you already cloned **this** repo (for example to contribute or fork):
+## 🚀 Quick Start Guide
 
+### 1. Prerequisites
+- **Node.js**: v18.17+ or v20+
+- **pnpm**: `npm install -g pnpm`
+- **MongoDB**: Running instance (`mongodb://127.0.0.1:27017` or MongoDB Atlas URI)
+- **Agora Account**: Agora App ID and Conversational AI credentials ([agora.io](https://www.agora.io/))
+
+### 2. Installation
+Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs.git
-cd agent-quickstart-nextjs
-agora login
-agora project use <your-project>
+git clone https://github.com/Rahul252006/CAVI.git
+cd CAVI
 pnpm install
-agora project env write .env.local
-agora project doctor --deep
+```
+
+### 3. Configure Environment Variables
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+
+Fill in your configuration:
+```env
+AGORA_APP_ID=your_agora_app_id
+AGORA_APP_CERTIFICATE=your_agora_app_certificate
+AGORA_CONVERSATIONAL_AI_API_KEY=your_conversational_ai_api_key
+NEXT_PUBLIC_AGORA_AGENT_ID=your_agent_preset_id
+MONGODB_URI=mongodb://127.0.0.1:27017/echosphere
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 4. Start the Application
+```bash
 pnpm dev
 ```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Deploy to Vercel
+---
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs&project-name=agent-quickstart-nextjs&repository-name=agent-quickstart-nextjs&env=NEXT_PUBLIC_AGORA_APP_ID,NEXT_AGORA_APP_CERTIFICATE&envDescription=Agora%20credentials%20needed%20to%20run%20the%20app&envLink=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs%23run-it&demo-title=Agora%20Conversational%20AI%20Next.js%20Quickstart&demo-description=Official%20Next.js%20quickstart%20for%20building%20browser-based%20voice%20AI%20with%20Agora&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs%2Fmain%2F.github%2Fassets%2FConversation-Ai-Client.gif)
+## 📁 Repository Structure
 
-To populate Vercel env vars from your bound Agora project:
-
-```bash
-agora project use <your-project>
-agora project env write .env.local
-rg "^(NEXT_PUBLIC_AGORA_APP_ID|NEXT_AGORA_APP_CERTIFICATE)=" .env.local
+```
+.
+├── app/
+│   ├── layout.tsx                     # Root layout with Lora typography & global styles
+│   ├── globals.css                    # Design tokens, smooth scrolling, and glassmorphism
+│   ├── page.tsx                       # Landing page entry
+│   ├── call/                          # Customer Calling Support Line
+│   ├── agent/                         # Human Officer login, registration & portal
+│   ├── admin/                         # Company Owner onboarding & admin portal
+│   ├── dashboard/                     # Company overview & live call analytics
+│   ├── docs/                          # Official architecture & developer docs
+│   ├── about/                         # About CAVI platform
+│   ├── security/                      # Security & compliance standards
+│   ├── privacy/                       # Privacy policy
+│   ├── terms/                         # Terms of service
+│   ├── contact/                       # Enterprise contact page
+│   └── api/                           # Secure RESTful Next.js API endpoints
+│       ├── invite-agent/              # Agora Conversational AI dynamic prompt bridge
+│       ├── dialer/start-call/         # Phone number validation & agent dispatch
+│       ├── company/                   # Company Brain & knowledge management
+│       ├── agent/                     # Officer registration, login & status
+│       ├── action/                    # Verified voice tool API execution
+│       └── telephony/                 # Webhook & outbound calling hooks
+├── components/
+│   ├── LandingPage.tsx                # Floating glass navbar, hero, pricing & comparison
+│   ├── AgoraConversationWrapper.tsx   # Agora WebRTC audio stream bridge
+│   ├── ConversationComponent.tsx      # Real-time voice interaction component
+│   └── echosphere/                    # Health meter, transcripts & agent indicators
+├── lib/
+│   ├── mongodb/                       # Native MongoDB connection pool & models
+│   ├── db/                            # Unified multi-tenant persistence layer
+│   ├── echosphere/                    # Prompt engineering, guardrails & brain compiler
+│   └── telephony/                     # DTMF phone conversion & routing
+├── public/                            # Static SVG assets & images
+└── scripts/
+    ├── test-mongodb.ts                # MongoDB persistence test script
+    └── verify-api-contracts.ts        # Contract verification runner
 ```
 
-Copy those two values into Vercel Project Settings -> Environment Variables.
+---
 
-### Environment variables
+## 🛡️ Guardrails & Safety Boundaries
 
-Defined in [`env.local.example`](env.local.example).
+CAVI enforces strict AI behavior boundaries:
+1. **Never Make Unverified Guarantees:** Cannot promise financial compensations exceeding tenant thresholds.
+2. **Deterministic Confirmation:** Critical entities (IDs, booking numbers, emails) are read back to the user before executing tool mutations.
+3. **Graceful Escalation:** When a caller expresses distress or ambiguity is high, transfer occurs immediately with complete context preserved.
 
-| Variable                     | Required | Notes                                                            |
-| ---------------------------- | :------: | ---------------------------------------------------------------- |
-| `NEXT_PUBLIC_AGORA_APP_ID`   |    ✅    | Agora Console → Project → App ID.                                |
-| `NEXT_AGORA_APP_CERTIFICATE` |    ✅    | Agora Console → Project → App Certificate. **Server-side only.** |
+---
 
-The default agent configuration in [`app/api/invite-agent/route.ts`](app/api/invite-agent/route.ts) uses Agora-managed STT, LLM, and TTS, so no extra vendor API keys are required for the base quickstart.
+## 📄 License
 
-## Commands
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-```bash
-# Dev
-pnpm dev                # start the Next.js dev server
+---
 
-# Quality
-pnpm run lint           # eslint
-pnpm run typecheck      # tsc --noEmit
-pnpm run doctor         # local prereqs + env binding
+<div align="center">
 
-# CI / pre-ship
-pnpm run verify:api     # API contract checks
-pnpm run build          # production build
-pnpm run verify         # doctor + lint + typecheck + verify:api + build
-```
+**Built for conversations. Designed for resolution.**
 
-Run `pnpm run verify` before shipping changes — it covers local prerequisites, lint, type safety, the core API route contracts, and the production build.
+© 2026 CAVI. All rights reserved.
 
-## Architecture
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./system-architecture-dark.svg">
-  <img src="./system-architecture.svg" alt="System architecture">
-</picture>
-
-The browser fetches a combined RTC + RTM token (`buildTokenWithRtm`) from this app, joins the channel using a single RTC client, and uses RTM as the data channel for transcript, agent state, metrics, and error events. The Conversational AI Engine joins the same channel as the shared agent UID in [`lib/agora.ts`](lib/agora.ts) and runs the STT → LLM → TTS pipeline in Agora Cloud.
-
-## What You Get
-
-- browser voice client built with Next.js App Router
-- RTC audio plus RTM transcript and state events
-- server routes for token generation, invite, and stop
-- [`AgentVisualizer`](https://agoraio-conversational-ai.github.io/agent-uikit/) for agent state and a built-in transcript panel for live turns
-- per-stage latency header driven by `AGENT_METRICS`
-- Agora-managed default STT, LLM, and TTS configuration
-
-## How It Works
-
-1. The browser requests an RTC + RTM token from `/api/generate-agora-token`.
-2. The backend invites an Agora cloud agent with `/api/invite-agent`.
-3. The browser joins the channel and publishes mic audio.
-4. The client receives transcript, agent state, and `AGENT_METRICS` (per-stage latency) events over RTM.
-5. On end, the client calls `/api/stop-conversation`, logs out RTM, and unmounts the call view so Agora React hooks clean up RTC publish/join and the local microphone track.
-
-## Optional BYOK
-
-The base `.env.local` contract contains only Agora credentials. If you are migrating from a supported provider, uncomment the matching snippet in [`app/api/invite-agent/route.ts`](app/api/invite-agent/route.ts) and add its variables to your local environment.
-
-```bash
-# Deepgram STT
-NEXT_DEEPGRAM_API_KEY=...
-
-# OpenAI-compatible LLM
-NEXT_LLM_URL=https://api.openai.com/v1/chat/completions
-NEXT_LLM_API_KEY=...
-
-# ElevenLabs TTS
-NEXT_ELEVENLABS_API_KEY=...
-NEXT_ELEVENLABS_VOICE_ID=...
-```
-
-## Repo Map
-
-- `app/api/generate-agora-token/route.ts` — issues RTC + RTM tokens
-- `app/api/invite-agent/route.ts` — starts the agent session and configures the pipeline
-- `app/api/stop-conversation/route.ts` — stops the agent session
-- `components/LandingPage.tsx` — entry point: token fetch, RTM login, conversation lifecycle
-- `components/ConversationComponent.tsx` — RTC client, transcript state, `AGENT_METRICS`, mic release
-- `components/QuickstartConversationLayout.tsx` — in-call header, transcript rail, controls dock
-- `components/QuickstartPipelineMetrics.tsx` — per-stage latency chips in the header
-- `components/QuickstartTranscriptPanel.tsx` — live transcript rail
-- `components/QuickstartPreCallCard.tsx` — pre-call hero card
-- `lib/conversation.ts` — transcript normalization and visualizer state mapping
-- `AGENTS.md` — primary agent-facing guide
-
-## Troubleshooting
-
-- **Agent does not join or transcripts are missing:** run `agora project doctor --deep`.
-- **`pnpm run doctor` fails:** run `agora project env write .env.local`, then retry.
-- **Manual clone / env values:** `agora project use <your-project>` then `agora project env write .env.local`.
-- **RTM login fails:** keep [`app/api/generate-agora-token/route.ts`](app/api/generate-agora-token/route.ts) on `RtcTokenBuilder.buildTokenWithRtm` — RTC-only tokens will not satisfy `rtm.login`.
-- **Transcript speakers inverted:** check the `uid === "0"` remap in [`components/ConversationComponent.tsx`](components/ConversationComponent.tsx).
-- **Agent never appears in channel:** ensure the shared agent UID in [`lib/agora.ts`](lib/agora.ts) is used by both the client and invite route.
-
-## More Docs
-
-- [docs/ai/L0_repo_card.md](./docs/ai/L0_repo_card.md)
-- [docs/ai/RECIPE.md](./docs/ai/RECIPE.md)
-- [AGENTS.md](./AGENTS.md)
-
-## Contributing
-
-Pull requests welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and conventions.
-
-## Security
-
-Please do **not** open public issues for security reports. Email security@agora.io with details and reproduction steps.
-
-## License
-
-Released under the [MIT License](./LICENSE).
+</div>

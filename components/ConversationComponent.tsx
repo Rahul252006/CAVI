@@ -44,6 +44,12 @@ import {
 } from './QuickstartPipelineMetrics';
 import { QuickstartTranscriptPanel } from './QuickstartTranscriptPanel';
 import type { ConversationComponentProps } from '@/types/conversation';
+import { ConversationState } from '@/types/echosphere';
+import { createInitialState, processConversationTurn } from '@/lib/echosphere/state';
+import { ConversationHealth } from './echosphere/ConversationHealth';
+import { LanguageIndicator } from './echosphere/LanguageIndicator';
+import { LiveFacts } from './echosphere/LiveFacts';
+import { EscalationBanner } from './echosphere/EscalationBanner';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
 const MAX_CONNECTION_ISSUES = 6;
@@ -130,6 +136,11 @@ export default function ConversationComponent({
       return [issue, ...prev].slice(0, MAX_CONNECTION_ISSUES);
     });
   }, []);
+
+  // EchoSphere canonical state
+  const [echoState, setEchoState] = useState<ConversationState>(() =>
+    createInitialState(`sess-${Date.now()}`)
+  );
 
   // Auto-open details panel as soon as a new issue is recorded.
   useEffect(() => {
@@ -468,8 +479,26 @@ export default function ConversationComponent({
     onEndConversation();
   }, [onEndConversation]);
 
+  // Real-time EchoSphere turn analyzer
+  useEffect(() => {
+    if (messageList.length === 0) return;
+    const latest = messageList[messageList.length - 1];
+    const isAgent = String(latest.uid) === String(agentUID);
+    const userUtterance = !isAgent ? latest.text : undefined;
+    const agentUtterance = isAgent ? latest.text : undefined;
+
+    setEchoState((prev) => {
+      const { updatedState } = processConversationTurn(prev, userUtterance, agentUtterance);
+      return updatedState;
+    });
+  }, [messageList, agentUID]);
+
   return (
     <QuickstartConversationLayout
+      languageBadge={<LanguageIndicator language={echoState.language} />}
+      healthPanel={<ConversationHealth health={echoState.conversationHealth} />}
+      liveFacts={<LiveFacts facts={echoState.facts} conflicts={echoState.conflicts} />}
+      escalationBanner={<EscalationBanner state={echoState} />}
       statusPanel={
         <ConnectionStatusPanel
           connectionState={connectionState}
@@ -489,7 +518,7 @@ export default function ConversationComponent({
       }
       visualizer={
         <div
-          className="relative flex h-full min-h-[20rem] w-full max-w-4xl items-center justify-center"
+          className="relative flex h-full min-h-[16rem] w-full max-w-4xl items-center justify-center"
           role="region"
           aria-label="AI agent status visualization"
         >
