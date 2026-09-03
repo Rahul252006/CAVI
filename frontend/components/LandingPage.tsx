@@ -228,15 +228,15 @@ export default function LandingPage() {
                 </linearGradient>
               </defs>
               
-              {/* Fill bottom corners to shape hero-gb.png into a concave curve */}
+              {/* Fill area below concave curve so hero-gb.png extends fully into the concave dip */}
               <path
-                d="M0,120 L1200,120 L1200,30 Q600,105 0,30 Z"
+                d="M0,0 Q600,95 1200,0 L1200,120 L0,120 Z"
                 fill="#f0f7ff"
               />
 
               {/* Concave Curve Border with Enterprise Blue Gradient */}
               <path
-                d="M0,30 Q600,105 1200,30"
+                d="M0,0 Q600,95 1200,0"
                 fill="none"
                 stroke="url(#cavi-concave-border)"
                 strokeWidth="6"
