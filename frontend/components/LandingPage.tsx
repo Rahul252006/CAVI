@@ -171,48 +171,44 @@ export default function LandingPage() {
       <main>
         {/* Hero Section: with hero-gb.png Background */}
         <section
-          className="relative min-h-[92vh] flex flex-col justify-center items-center py-16 lg:py-24 bg-cover bg-center bg-no-repeat overflow-hidden border-b border-neutral-200/80"
+          className="relative min-h-[90vh] flex flex-col justify-center items-center py-16 lg:py-20 bg-cover bg-center bg-no-repeat overflow-hidden border-b border-neutral-200/80"
           style={{ backgroundImage: "url('/images/hero-gb.png')" }}
         >
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
-            {/* Centered Hero Card & Typography */}
-            <div className="max-w-4xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-6">
+            <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-4">
               
-              {/* Voice Resolution Infrastructure Kicker */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-4 py-1.5 backdrop-blur-md shadow-xs mb-6">
-                <Sparkles className="h-4 w-4 text-blue-600 animate-pulse" />
-                <span className="text-xs font-extrabold uppercase tracking-wider text-blue-700">Voice Resolution Infrastructure</span>
+              {/* Category Pill */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/90 px-4 py-1.5 backdrop-blur-md shadow-xs mb-6">
+                <span className="h-2 w-2 rounded-full bg-blue-600 animate-ping" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-700">Voice Resolution Infrastructure</span>
               </div>
 
-              {/* Medium-Big CAVI Title with Vibrant Gradient & Embossed Shadow */}
-              <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight drop-shadow-[0_6px_20px_rgba(37,99,235,0.28)] mb-3">
-                <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  CAVI
-                </span>
+              {/* Elegant Large CAVI Title — Clean, Solid & Executive (No AI Slop Gradients) */}
+              <h1 className="font-display text-7xl sm:text-8xl lg:text-9xl font-black tracking-tight text-neutral-950 mb-2 drop-shadow-xs">
+                CAVI
               </h1>
 
               {/* Full Abbreviation Tagline */}
-              <div className="inline-block rounded-full bg-blue-600/10 border border-blue-500/20 px-5 py-1.5 shadow-xs mb-6">
-                <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-blue-700">
-                  Customer Assistance through Voice Intelligence
-                </p>
-              </div>
-
-              {/* Main Value Proposition Headline */}
-              <h2 className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-neutral-950 mb-6 drop-shadow-xs">
-                Customer calls should end in <span className="text-blue-600 underline decoration-blue-300 underline-offset-4">resolved cases</span>, not repeated stories.
-              </h2>
-
-              {/* Concise Description */}
-              <p className="max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-neutral-700 mb-10">
-                CAVI is an enterprise voice resolution engine that connects directly to a company&apos;s support phone lines, knowledge base, operational SOPs, and tool APIs. It listens in natural English, Hindi, and Tamil, verifies caller intent, resolves safe requests autonomously, and escalates complex calls with complete Case DNA briefs.
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-blue-700 mb-6 bg-blue-50/80 border border-blue-200/60 px-4 py-1 rounded-full">
+                Customer Assistance through Voice Intelligence
               </p>
 
-              {/* Two Centered Action Buttons */}
+              {/* Headline */}
+              <h2 className="max-w-2xl text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-neutral-950 mb-4">
+                Customer calls should end in <span className="text-blue-600 underline decoration-blue-200 underline-offset-4">resolved cases</span>, not repeated stories.
+              </h2>
+
+              {/* Clean 2-Line Problem-Solving Description */}
+              <div className="max-w-xl text-base font-normal leading-relaxed text-neutral-600 mb-10 space-y-1">
+                <p>CAVI connects support phone lines to your knowledge base and tools to resolve customer calls autonomously in English, Hindi, and Tamil.</p>
+                <p>When complex requests occur, human officers receive the complete context brief with zero repeated stories.</p>
+              </div>
+
+              {/* Spacious, Non-Squeezy Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                 <Link
                   href="/admin/login?intent=onboard"
-                  className="soft-action shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 px-8 py-3.5 text-base font-bold rounded-full bg-blue-600 text-white hover:bg-blue-700 border border-blue-500/40"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-base font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all duration-200 min-w-[200px]"
                 >
                   <Building2 className="h-5 w-5" />
                   Onboard Company
@@ -220,16 +216,12 @@ export default function LandingPage() {
 
                 <Link
                   href="/call"
-                  className="soft-action-secondary bg-white/95 text-neutral-950 border-2 border-neutral-300 hover:border-blue-400 hover:bg-blue-50/90 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 px-8 py-3.5 text-base font-bold rounded-full"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-base font-semibold rounded-xl bg-white text-neutral-950 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 shadow-xs hover:shadow-md transition-all duration-200 min-w-[200px]"
                 >
                   <PhoneCall className="h-5 w-5 text-blue-600" />
-                  Call Customer Support
+                  Call Support Line
                 </Link>
               </div>
-
-              <p className="mt-6 max-w-xl text-xs font-semibold leading-5 text-neutral-500">
-                Onboarding takes under 5 minutes. Support numbers and Company Brain rules can be configured immediately.
-              </p>
 
             </div>
           </div>
