@@ -308,49 +308,83 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Product Capabilities & Features (Clean White Area between Showcase and Footer) */}
-        <section className="bg-slate-50/90 py-20 border-b border-neutral-200">
-          <div className="soft-shell">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">How CAVI Works</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-neutral-950 leading-tight">
-                Built to handle customer calls smoothly
+        {/* Division 1: Natural Multilingual Voice */}
+        <section className="bg-white py-20 border-b border-neutral-200">
+          <div className="soft-shell max-w-5xl mx-auto grid gap-10 md:grid-cols-2 items-center">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">01. Natural Voice</span>
+              <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-neutral-950 leading-tight">
+                Speaks comfortably in English, Hindi, and Tamil
               </h2>
+              <p className="mt-4 text-base text-neutral-600 leading-relaxed">
+                Customers do not need to press phone buttons or follow robot menus. CAVI listens to normal speech, understands different accents, and responds smoothly without long awkward silences.
+              </p>
             </div>
-
-            <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-              {/* Feature 1 */}
-              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
-                <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center mb-6">
-                  <PhoneCall className="h-6 w-6 text-blue-600" />
+            <div className="space-y-4">
+              {[
+                ['No Phone Menus', 'Callers talk naturally without pressing 1 for sales or 2 for support.'],
+                ['Background Noise Resilience', 'Understands customers clearly even when calling from busy streets or transit.'],
+                ['Natural Interruptions', 'Customers can speak over the AI anytime to change their request.'],
+              ].map(([itemTitle, itemDesc]) => (
+                <div key={itemTitle} className="p-5 rounded-xl border border-neutral-200/80 bg-slate-50/70">
+                  <h3 className="text-base font-bold text-neutral-900">{itemTitle}</h3>
+                  <p className="mt-1 text-xs sm:text-sm text-neutral-600 leading-relaxed">{itemDesc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-neutral-950 mb-3">Speaks Naturally</h3>
-                <p className="text-sm text-neutral-600 leading-relaxed">
-                  CAVI talks comfortably in English, Hindi, and Tamil. It understands different accents, handles background noise, and lets callers speak freely without pressing keypad buttons.
-                </p>
-              </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-              {/* Feature 2 */}
-              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
-                <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-6">
-                  <Brain className="h-6 w-6 text-indigo-600" />
+        {/* Division 2: Connected to Company Rules & Tools */}
+        <section className="bg-slate-50/90 py-20 border-b border-neutral-200">
+          <div className="soft-shell max-w-5xl mx-auto grid gap-10 md:grid-cols-2 items-center">
+            <div className="order-2 md:order-1 space-y-4">
+              {[
+                ['Company FAQs & SOPs', 'Answers questions directly from your official guidelines and policy documents.'],
+                ['Live Database Lookups', 'Checks real-time order status, booking details, or account records during the call.'],
+                ['Safe Automated Actions', 'Processes simple requests like cancellations or address updates based on your policy.'],
+              ].map(([itemTitle, itemDesc]) => (
+                <div key={itemTitle} className="p-5 rounded-xl border border-neutral-200/80 bg-white">
+                  <h3 className="text-base font-bold text-neutral-900">{itemTitle}</h3>
+                  <p className="mt-1 text-xs sm:text-sm text-neutral-600 leading-relaxed">{itemDesc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-neutral-950 mb-3">Learns Your Business</h3>
-                <p className="text-sm text-neutral-600 leading-relaxed">
-                  Connect your FAQs, refund rules, and order lookup systems. CAVI checks real-time database information to give accurate answers and perform simple tasks safely.
-                </p>
-              </div>
+              ))}
+            </div>
+            <div className="order-1 md:order-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">02. Company Knowledge</span>
+              <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-neutral-950 leading-tight">
+                Learns your company rules and checks real data
+              </h2>
+              <p className="mt-4 text-base text-neutral-600 leading-relaxed">
+                Connect your business FAQs and tools. CAVI looks up live database records to answer customer questions accurately and resolve safe requests on the spot.
+              </p>
+            </div>
+          </div>
+        </section>
 
-              {/* Feature 3 */}
-              <div className="p-8 bg-white border border-neutral-200/90 rounded-2xl shadow-xs hover:shadow-md transition duration-300">
-                <div className="h-12 w-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-6">
-                  <ShieldCheck className="h-6 w-6 text-cyan-600" />
+        {/* Division 3: Zero-Repeat Human Handoff */}
+        <section className="bg-white py-20 border-b border-neutral-200">
+          <div className="soft-shell max-w-5xl mx-auto grid gap-10 md:grid-cols-2 items-center">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-100">03. Seamless Handoff</span>
+              <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold text-neutral-950 leading-tight">
+                Sends full call summaries to your support team
+              </h2>
+              <p className="mt-4 text-base text-neutral-600 leading-relaxed">
+                If a customer request needs human decision-making, CAVI transfers the call with a complete summary of what was said so callers never have to repeat their story.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {[
+                ['Instant Call Summary', 'Human officers see the customer story, intent, and key facts on their screen.'],
+                ['Smart Officer Routing', 'Directs complex cases automatically to the right available team member.'],
+                ['Zero Repeated Stories', 'Customers talk to a human specialist who already knows their issue.'],
+              ].map(([itemTitle, itemDesc]) => (
+                <div key={itemTitle} className="p-5 rounded-xl border border-neutral-200/80 bg-slate-50/70">
+                  <h3 className="text-base font-bold text-neutral-900">{itemTitle}</h3>
+                  <p className="mt-1 text-xs sm:text-sm text-neutral-600 leading-relaxed">{itemDesc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-neutral-950 mb-3">Zero-Repeat Team Handoff</h3>
-                <p className="text-sm text-neutral-600 leading-relaxed">
-                  When a call needs a human touch, your support team receives a complete call summary with caller details and verified facts before answering the line.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
