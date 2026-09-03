@@ -190,58 +190,26 @@ export default function LandingPage() {
                 <p>If a call needs a human, CAVI sends the full summary to your team so customers never repeat themselves.</p>
               </div>
 
-              {/* Redesigned Rounded-Full Action Buttons */}
+              {/* Primary Blue Button & Secondary White Button */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                 <Link
                   href="/admin/login?intent=onboard"
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full bg-neutral-950 text-white hover:bg-neutral-800 border border-neutral-900 shadow-md hover:shadow-lg transition-all duration-200 min-w-[200px]"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md transition-colors duration-200 min-w-[200px]"
                 >
-                  <Building2 className="h-4 w-4" />
-                  Onboard Company
+                  <Building2 className="h-4 w-4 text-white" />
+                  <span>Onboard Company</span>
                 </Link>
 
                 <Link
                   href="/call"
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-semibold rounded-full bg-white/95 text-neutral-950 border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 shadow-xs hover:shadow-md transition-all duration-200 min-w-[200px]"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-white text-neutral-950 border border-neutral-300 hover:bg-slate-50 shadow-none hover:shadow-none transition-colors duration-200 min-w-[200px]"
                 >
                   <PhoneCall className="h-4 w-4 text-blue-600" />
-                  Call Support Line
+                  <span>Call Support Line</span>
                 </Link>
               </div>
 
             </div>
-          </div>
-
-          {/* Concave Bottom Mask & Blue Gradient Border */}
-          <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
-            <svg
-              className="relative block w-full h-16 sm:h-24 lg:h-28"
-              viewBox="0 0 1200 120"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="cavi-concave-border" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#1d4ed8" />
-                  <stop offset="30%" stopColor="#2563eb" />
-                  <stop offset="70%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#4f46e5" />
-                </linearGradient>
-              </defs>
-              
-              {/* Fill area below concave curve so hero-gb.png extends fully into the concave dip */}
-              <path
-                d="M0,0 Q600,95 1200,0 L1200,120 L0,120 Z"
-                fill="#f0f7ff"
-              />
-
-              {/* Concave Curve Border with Enterprise Blue Gradient */}
-              <path
-                d="M0,0 Q600,95 1200,0"
-                fill="none"
-                stroke="url(#cavi-concave-border)"
-                strokeWidth="6"
-              />
-            </svg>
           </div>
         </section>
 

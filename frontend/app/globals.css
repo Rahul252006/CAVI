@@ -140,7 +140,7 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* --- Primary Button: Top-to-bottom gradient (light on top, bright & rich on bottom) --- */
+/* --- Primary Button: Rich Blue (matching open customer call line button) --- */
 .soft-action,
 .btn-primary-gradient {
   display: inline-flex;
@@ -148,50 +148,47 @@
   justify-content: center;
   gap: 0.5rem;
   border-radius: 9999px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  background-color: #2563eb;
   color: #ffffff !important;
-  border: 1px solid rgba(29, 78, 216, 0.4);
-  box-shadow: 0 1px 3px 0 rgba(29, 78, 216, 0.2), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
+  border: 1px solid #2563eb;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -2px rgba(37, 99, 235, 0.1);
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
   cursor: pointer;
 }
 
 .soft-action:hover,
 .btn-primary-gradient:hover {
-  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%);
-  box-shadow: 0 4px 12px 0 rgba(37, 99, 235, 0.3);
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
   color: #ffffff !important;
 }
 
-.soft-action:active,
-.btn-primary-gradient:active {
-  background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%);
-}
-
+/* --- Secondary Button: Solid White (zero shadow on hover) --- */
 .soft-action-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border-radius: 9999px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
   background-color: #ffffff;
-  color: #1f2937 !important;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease-in-out;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1;
+  box-shadow: none !important;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out;
   cursor: pointer;
 }
 
 .soft-action-secondary:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-  color: #111827 !important;
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #020617 !important;
+  box-shadow: none !important;
 }
 
 /* --- Global Input Focus / Selection Fade Animation --- */
