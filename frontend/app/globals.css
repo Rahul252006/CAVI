@@ -199,18 +199,15 @@ input, select, textarea {
   transition: border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, background-color 0.25s ease-in-out, transform 0.15s ease-in-out;
 }
 
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  animation: inputGlowFadeIn 0.3s ease-in-out forwards;
+/* --- Global Input Focus: Slim 1px Blue Border Only (No Broad Ring / Outer Shadow) --- */
+input, select, textarea {
+  transition: border-color 0.2s ease-in-out;
 }
 
-@keyframes inputGlowFadeIn {
-  0% {
-    box-shadow: 0 0 0 0px rgba(37, 99, 235, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(37, 99, 235, 0.1);
-  }
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #2563eb !important;
 }
 
 /* --- Global Button Hover Fade Animation (Pure Color Shade Fade In/Out, No Scale or Translation) --- */

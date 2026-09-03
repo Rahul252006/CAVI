@@ -311,7 +311,7 @@ export default function CustomerCallInterfacePage() {
                   value={supportPhone}
                   onChange={(e) => setSupportPhone(e.target.value)}
                   placeholder="e.g. +919876543210"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono font-bold text-xs sm:text-sm shadow-xs"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-bold text-xs sm:text-sm shadow-xs transition-colors"
                 />
 
                 {registeredCompanies.length > 0 ? (
@@ -359,7 +359,7 @@ export default function CustomerCallInterfacePage() {
                   value={callerPhone}
                   onChange={(e) => setCallerPhone(e.target.value)}
                   placeholder="e.g. +91 98765 43210"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono font-medium text-xs shadow-xs"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-medium text-xs shadow-xs transition-colors"
                 />
                 <p className="text-[11px] text-slate-500 font-medium">
                   Used for verification and human officer callbacks.
