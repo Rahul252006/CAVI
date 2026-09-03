@@ -211,6 +211,38 @@ export default function LandingPage() {
 
             </div>
           </div>
+
+          {/* Horizontal Convex Curved Bottom Divider with Blue Gradient Border */}
+          <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
+            <svg
+              className="relative block w-full h-12 sm:h-20 lg:h-24"
+              viewBox="0 0 1200 120"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="cavi-convex-border" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#1d4ed8" />
+                  <stop offset="30%" stopColor="#2563eb" />
+                  <stop offset="70%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#4f46e5" />
+                </linearGradient>
+              </defs>
+              
+              {/* Fill matching next section background */}
+              <path
+                d="M0,0 Q600,105 1200,0 L1200,120 L0,120 Z"
+                fill="#f0f7ff"
+              />
+
+              {/* Convex Curve Border with Enterprise Blue Gradient */}
+              <path
+                d="M0,0 Q600,105 1200,0"
+                fill="none"
+                stroke="url(#cavi-convex-border)"
+                strokeWidth="6"
+              />
+            </svg>
+          </div>
         </section>
 
         <section id="demo" className="border-y border-blue-100 bg-blue-50/40">
