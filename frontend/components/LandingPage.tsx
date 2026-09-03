@@ -179,8 +179,8 @@ export default function LandingPage() {
           <div className="soft-shell relative z-10 w-full flex flex-col items-center justify-center text-center my-auto">
             <div className="max-w-3xl mx-auto flex flex-col items-center justify-center text-center animate-soft-rise py-6">
               
-              {/* CAVI Title — Ultra Bold Single Word with Tiny Letter Gap (matching footer) */}
-              <h1 className="font-display text-8xl sm:text-[13vw] lg:text-[16vw] font-black tracking-[0.04em] bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
+              {/* CAVI Title — Ultra Bold Single Word with Reduced Letter Gap */}
+              <h1 className="font-display text-8xl sm:text-[13vw] lg:text-[16vw] font-black tracking-[0.015em] bg-gradient-to-b from-neutral-600 via-neutral-900 to-neutral-950 bg-clip-text text-transparent mb-6 leading-none drop-shadow-xs select-none">
                 CAVI
               </h1>
 
@@ -400,7 +400,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/admin/login?intent=onboard"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm sm:text-base font-bold rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white border border-blue-600/40 shadow-md transition-colors duration-200"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white border border-blue-600/40 shadow-md transition-colors duration-200"
             >
               <Building2 className="h-4 w-4 text-white" />
               <span>Onboard Company Now</span>

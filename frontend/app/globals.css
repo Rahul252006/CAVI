@@ -237,6 +237,8 @@ a:active,
 .btn-primary-gradient:active,
 [role="button"]:active {
   transform: none !important;
+  opacity: 0.75 !important;
+  transition: opacity 0.3s ease-in-out !important;
 }
 
 /* --- Animations --- */
