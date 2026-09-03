@@ -10,7 +10,14 @@
     "build": "pnpm --filter cavi-backend build && pnpm --filter cavi-frontend build",
     "build:frontend": "pnpm --filter cavi-frontend build",
     "build:backend": "pnpm --filter cavi-backend build",
+    "start": "pnpm --filter cavi-frontend start",
     "start:backend": "pnpm --filter cavi-backend start",
     "typecheck": "pnpm --filter cavi-backend typecheck && pnpm --filter cavi-frontend typecheck"
+  },
+  "dependencies": {
+    "lucide-react": "^0.454.0",
+    "next": "^16.2.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
