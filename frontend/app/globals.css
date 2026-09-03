@@ -194,6 +194,57 @@
   color: #111827 !important;
 }
 
+/* --- Global Input Focus / Selection Fade Animation --- */
+input, select, textarea {
+  transition: border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out, background-color 0.25s ease-in-out, transform 0.15s ease-in-out;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  animation: inputGlowFadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes inputGlowFadeIn {
+  0% {
+    box-shadow: 0 0 0 0px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(37, 99, 235, 0.1);
+  }
+}
+
+/* --- Global Button Hover Micro-Animation (Throughout Whole Site Everywhere) --- */
+button,
+a,
+.soft-action,
+.soft-action-secondary,
+.btn-primary-gradient,
+[role="button"] {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.25s ease-in-out,
+              border-color 0.25s ease-in-out,
+              opacity 0.2s ease-in-out;
+}
+
+button:hover,
+a.inline-flex:hover,
+.soft-action:hover,
+.soft-action-secondary:hover,
+.btn-primary-gradient:hover,
+[role="button"]:hover {
+  transform: translateY(-1.5px) scale(1.015);
+}
+
+button:active,
+a.inline-flex:active,
+.soft-action:active,
+.soft-action-secondary:active,
+.btn-primary-gradient:active,
+[role="button"]:active {
+  transform: translateY(0px) scale(0.985);
+}
+
 /* --- Animations --- */
 @keyframes soft-rise {
   0% {
