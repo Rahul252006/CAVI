@@ -197,16 +197,16 @@ export default function CustomerCallInterfacePage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-10 font-sans selection:bg-blue-600 selection:text-white animate-in fade-in duration-500">
+    <div className="min-h-screen w-full bg-slate-100/90 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-10 font-sans selection:bg-blue-600 selection:text-white animate-in fade-in duration-500">
       
-      {/* FLOATING CONTAINER CARD WITH BRIGHT THICK WHITE BORDER AND HIGH DOT OPACITY */}
-      <div className="max-w-5xl w-full rounded-[2.5rem] border-[5px] border-white/90 bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px] my-auto">
+      {/* FLOATING CONTAINER CARD WITH BRIGHT THICK WHITE BORDER */}
+      <div className="max-w-5xl w-full rounded-[2.5rem] border-[5px] border-white bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px] my-auto">
         
-        {/* LEFT BLUE PANEL (High opacity dot pattern, simple title, 2 white buttons) */}
+        {/* LEFT BLUE PANEL (Refined dot pattern opacity, simple title, 2 white buttons) */}
         <div className="w-full lg:w-5/12 bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 text-white relative flex flex-col justify-between p-8 sm:p-10 border-b lg:border-b-0 lg:border-r border-blue-800/40">
           
-          {/* Spaced Dot Pattern with High Opacity */}
-          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.38)_1.5px,transparent_1.5px)] [background-size:26px_26px] pointer-events-none opacity-90" />
+          {/* Spaced Dot Pattern with Refined Opacity */}
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.25)_1.5px,transparent_1.5px)] [background-size:26px_26px] pointer-events-none opacity-45" />
 
           <div className="relative z-10 space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/20 px-3.5 py-1 backdrop-blur-md shadow-xs">
