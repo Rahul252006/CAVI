@@ -20,18 +20,36 @@ const workflow = [
 
 export default function LandingPage() {
   const [showFloatingNav, setShowFloatingNav] = useState(false);
+  const [isDarkNavbar, setIsDarkNavbar] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Reveal floating navbar only after scrolling past the hero section
-      if (window.scrollY > 280) {
+      const scrollY = window.scrollY;
+      if (scrollY > 280) {
         setShowFloatingNav(true);
       } else {
         setShowFloatingNav(false);
       }
+
+      // Check if floating navbar is currently over a dark background section
+      const darkSections = document.querySelectorAll('[data-dark-section="true"]');
+      let overDark = false;
+      const navY = scrollY + 45;
+
+      darkSections.forEach((sec) => {
+        const el = sec as HTMLElement;
+        const top = el.offsetTop;
+        const bottom = top + el.offsetHeight;
+        if (navY >= top && navY <= bottom) {
+          overDark = true;
+        }
+      });
+
+      setIsDarkNavbar(overDark);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -50,7 +68,7 @@ export default function LandingPage() {
 
   return (
     <div className="soft-page flex flex-col">
-      {/* Floating Liquid Glass Island Navbar (Visible ONLY after scrolling past Hero section) */}
+      {/* Floating Liquid Glass Island Navbar (Dynamically adapts text & glass color over dark backgrounds) */}
       <header
         className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl transition-all duration-500 ease-out ${
           showFloatingNav
@@ -58,15 +76,27 @@ export default function LandingPage() {
             : 'opacity-0 -translate-y-8 pointer-events-none'
         }`}
       >
-        <div className="flex h-14 items-center justify-between rounded-full border border-white/80 bg-white/92 px-6 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] backdrop-blur-3xl">
-          {/* 1. Left: Brand Logo (No 'C' Icon) */}
+        <div
+          className={`flex h-14 items-center justify-between rounded-full px-6 py-2 transition-all duration-300 backdrop-blur-3xl ${
+            isDarkNavbar
+              ? 'border border-white/20 bg-neutral-950/85 text-white shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)]'
+              : 'border border-white/80 bg-white/92 text-neutral-950 shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
+          }`}
+        >
+          {/* 1. Left: Brand Logo */}
           <Link
             href="/"
             onClick={handleScrollToTop}
             className="group flex items-center gap-2 transition-opacity hover:opacity-80"
             aria-label="CAVI home"
           >
-            <span className="font-display text-xl font-bold tracking-tight text-neutral-950">CAVI</span>
+            <span
+              className={`font-display text-xl font-bold tracking-tight transition-colors duration-300 ${
+                isDarkNavbar ? 'text-white' : 'text-neutral-950'
+              }`}
+            >
+              CAVI
+            </span>
           </Link>
 
           {/* 2. Center: Navigation Options with Even Spacing */}
@@ -74,28 +104,44 @@ export default function LandingPage() {
             <a
               href="#how-it-works"
               onClick={(e) => handleScrollToSection(e, 'how-it-works')}
-              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100/90 hover:text-neutral-950"
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-300 ${
+                isDarkNavbar
+                  ? 'text-neutral-300 hover:bg-white/10 hover:text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100/90 hover:text-neutral-950'
+              }`}
             >
               How it works
             </a>
             <a
               href="#company-brain"
               onClick={(e) => handleScrollToSection(e, 'company-brain')}
-              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100/90 hover:text-neutral-950"
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-300 ${
+                isDarkNavbar
+                  ? 'text-neutral-300 hover:bg-white/10 hover:text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100/90 hover:text-neutral-950'
+              }`}
             >
               Company Brain
             </a>
             <a
               href="#demo"
               onClick={(e) => handleScrollToSection(e, 'demo')}
-              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100/90 hover:text-neutral-950"
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-300 ${
+                isDarkNavbar
+                  ? 'text-neutral-300 hover:bg-white/10 hover:text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100/90 hover:text-neutral-950'
+              }`}
             >
               Demo
             </a>
             <a
               href="#pricing"
               onClick={(e) => handleScrollToSection(e, 'pricing')}
-              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-100/90 hover:text-neutral-950"
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors duration-300 ${
+                isDarkNavbar
+                  ? 'text-neutral-300 hover:bg-white/10 hover:text-white'
+                  : 'text-neutral-600 hover:bg-neutral-100/90 hover:text-neutral-950'
+              }`}
             >
               Pricing
             </a>
@@ -105,14 +151,22 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/call"
-              className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50/90 px-3 py-1.5 text-xs font-semibold text-blue-600 transition-all hover:bg-blue-100"
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                isDarkNavbar
+                  ? 'border border-blue-400/30 bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                  : 'border border-blue-200 bg-blue-50/90 text-blue-600 hover:bg-blue-100'
+              }`}
             >
-              <PhoneCall className="h-3 w-3 text-blue-600" />
+              <PhoneCall className="h-3 w-3 text-blue-500" />
               Call Line
             </Link>
             <Link
               href="/admin/login?intent=onboard"
-              className="soft-action px-3.5 py-1.5 text-xs"
+              className={`px-3.5 py-1.5 text-xs rounded-full font-semibold inline-flex items-center gap-1 transition-all duration-300 shadow-sm ${
+                isDarkNavbar
+                  ? 'bg-white text-neutral-950 hover:bg-neutral-100'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
               Onboard
               <ArrowRight className="h-3 w-3" />
@@ -259,6 +313,7 @@ export default function LandingPage() {
         <section id="pricing">
           {/* 1. Upper Pricing Cards with bg3 Background */}
           <div
+            data-dark-section="true"
             className="relative py-20 bg-cover bg-center bg-no-repeat border-t border-neutral-200"
             style={{ backgroundImage: "url('/images/bg3.png')" }}
           >
@@ -416,7 +471,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-neutral-950 py-16 text-white">
+        <section data-dark-section="true" className="bg-neutral-950 py-16 text-white">
           <div className="soft-shell flex flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
             <div>
               <h2 className="text-3xl font-semibold">Ready to resolve customer calls with CAVI?</h2>
@@ -431,7 +486,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-neutral-900 bg-neutral-950 text-white pt-16 pb-6 overflow-hidden">
+      <footer data-dark-section="true" className="border-t border-neutral-900 bg-neutral-950 text-white pt-16 pb-6 overflow-hidden">
         <div className="soft-shell grid grid-cols-2 gap-10 md:grid-cols-5 lg:gap-12">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1 space-y-4">
