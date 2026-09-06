@@ -4,7 +4,7 @@
   "description": "CAVI Frontend - Customer Assistance through Voice Intelligence",
   "private": true,
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "scripts": {
     "dev": "next dev --webpack",
