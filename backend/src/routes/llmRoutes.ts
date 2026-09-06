@@ -253,12 +253,13 @@ async function synthesizeSpeechFast(text: string): Promise<string | null> {
 
   if (deepgramKey && deepgramKey.length > 5) {
     const candidateModels = [
-      'aura-2-priya-en',
-      'aura-priya-en',
       'aura-asteria-en',
       'aura-luna-en',
       'aura-stella-en',
-      'aura-arcas-en',
+      'aura-athena-en',
+      'aura-hera-en',
+      'aura-2-priya-en',
+      'aura-priya-en',
     ];
 
     for (const model of candidateModels) {
@@ -283,7 +284,7 @@ async function synthesizeSpeechFast(text: string): Promise<string | null> {
 
   const elevenLabsKey = getApiKey('ELEVENLABS_API_KEY') || getApiKey('NEXT_PUBLIC_ELEVENLABS_API_KEY');
   // Rachel / Bella gentle pleasant female voices
-  const targetVoiceId = getApiKey('ELEVENLABS_VOICE_ID') || getApiKey('NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN') || '21m00Tcm4TlvDq8ikWAM';
+  const targetVoiceId = '21m00Tcm4TlvDq8ikWAM';
   if (elevenLabsKey && elevenLabsKey.length > 5) {
     try {
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoiceId}`, {
@@ -327,15 +328,16 @@ router.post('/tts', async (req: Request, res: Response) => {
     const cleanSpeechText = text.replace(/!+/g, '.');
     const deepgramKey = getApiKey('DEEPGRAM_API_KEY') || getApiKey('NEXT_PUBLIC_DEEPGRAM_API_KEY');
 
-    // 1. Primary: Deepgram Priya / Asteria / Luna Gentle Voice Synthesis
+    // 1. Primary: Deepgram Priya / Asteria / Luna Gentle Female Voice Synthesis
     if (deepgramKey && deepgramKey.length > 5) {
       const candidateModels = [
-        'aura-2-priya-en',
-        'aura-priya-en',
         'aura-asteria-en',
         'aura-luna-en',
         'aura-stella-en',
-        'aura-arcas-en',
+        'aura-athena-en',
+        'aura-hera-en',
+        'aura-2-priya-en',
+        'aura-priya-en',
       ];
 
       for (const model of candidateModels) {

@@ -3,49 +3,51 @@ export interface ElevenLabsVoice {
   name: string;
   language: string;
   languageCode: 'en' | 'hi' | 'te' | 'ta';
-  gender: 'male';
+  gender: 'female';
   modelId: string;
   description: string;
 }
 
-export const ELEVENLABS_MALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenLabsVoice> = {
+export const ELEVENLABS_FEMALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenLabsVoice> = {
   en: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID_EN || process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB', // Adam - Deep, Confident Male Voice
-    name: 'Adam (ElevenLabs Male)',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID_EN || process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM', // Rachel / Priya - Warm, Soothing Female Voice
+    name: 'Priya (ElevenLabs Female)',
     language: 'English',
     languageCode: 'en',
-    gender: 'male',
+    gender: 'female',
     modelId: 'eleven_multilingual_v2',
-    description: 'Deep, authoritative English male customer resolution voice.',
+    description: 'Calm, soothing, empathetic English female customer resolution voice.',
   },
   hi: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_HI || process.env.ELEVENLABS_VOICE_ID_HI || 'ErXwobaYiN019PkySvjV', // Marcus / Multilingual Male
-    name: 'Aarav (ElevenLabs Male - Hindi)',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_HI || process.env.ELEVENLABS_VOICE_ID_HI || '21m00Tcm4TlvDq8ikWAM',
+    name: 'Priya (ElevenLabs Female - Hindi)',
     language: 'Hindi',
     languageCode: 'hi',
-    gender: 'male',
+    gender: 'female',
     modelId: 'eleven_multilingual_v2',
-    description: 'Crisp, natural Hindi male voice using ElevenLabs Multilingual V2.',
+    description: 'Crisp, natural Hindi female voice using ElevenLabs Multilingual V2.',
   },
   te: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TE || process.env.ELEVENLABS_VOICE_ID_TE || 'TxGEqnscrfWW6350DD69', // Josh / Multilingual Male
-    name: 'Kiran (ElevenLabs Male - Telugu)',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TE || process.env.ELEVENLABS_VOICE_ID_TE || '21m00Tcm4TlvDq8ikWAM',
+    name: 'Priya (ElevenLabs Female - Telugu)',
     language: 'Telugu',
     languageCode: 'te',
-    gender: 'male',
+    gender: 'female',
     modelId: 'eleven_multilingual_v2',
-    description: 'Smooth, expressive Telugu male voice using ElevenLabs Multilingual V2.',
+    description: 'Smooth, expressive Telugu female voice using ElevenLabs Multilingual V2.',
   },
   ta: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TA || process.env.ELEVENLABS_VOICE_ID_TA || 'VR6AewLTigWG4xSOukaG', // Marcus / Multilingual Male
-    name: 'Vijay (ElevenLabs Male - Tamil)',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TA || process.env.ELEVENLABS_VOICE_ID_TA || '21m00Tcm4TlvDq8ikWAM',
+    name: 'Priya (ElevenLabs Female - Tamil)',
     language: 'Tamil',
     languageCode: 'ta',
-    gender: 'male',
+    gender: 'female',
     modelId: 'eleven_multilingual_v2',
-    description: 'Clear, polite Tamil male voice using ElevenLabs Multilingual V2.',
+    description: 'Clear, polite Tamil female voice using ElevenLabs Multilingual V2.',
   },
 };
+
+export const ELEVENLABS_MALE_VOICES = ELEVENLABS_FEMALE_VOICES;
 
 let currentAudio: HTMLAudioElement | null = null;
 
@@ -222,10 +224,33 @@ function fallbackSpeechSynthesis(
       te: ['te-IN', 'te'],
       ta: ['ta-IN', 'ta'],
     };
-
     const targetLocales = langLocales[langCode] || langLocales.en;
+
+    const isMaleVoice = (name: string) => {
+      const n = name.toLowerCase();
+      return (
+        n.includes('male') ||
+        n.includes('david') ||
+        n.includes('alex') ||
+        n.includes('fred') ||
+        n.includes('daniel') ||
+        n.includes('oliver') ||
+        n.includes('george') ||
+        n.includes('rishi') ||
+        n.includes('lee') ||
+        n.includes('tom') ||
+        n.includes('guy') ||
+        n.includes('bruce') ||
+        n.includes('junior')
+      );
+    };
+
+    // Exclusively filter to non-male / female voices
+    const nonMaleVoices = voices.filter((v) => !isMaleVoice(v.name));
+    const targetVoicePool = nonMaleVoices.length > 0 ? nonMaleVoices : voices;
+
     const matchedVoice =
-      voices.find((v) =>
+      targetVoicePool.find((v) =>
         targetLocales.some((loc) => v.lang.toLowerCase().includes(loc.toLowerCase())) &&
         (v.name.toLowerCase().includes('priya') ||
           v.name.toLowerCase().includes('veena') ||
@@ -233,13 +258,13 @@ function fallbackSpeechSynthesis(
           v.name.toLowerCase().includes('female') ||
           v.name.toLowerCase().includes('karen') ||
           v.name.toLowerCase().includes('victoria') ||
-          v.name.toLowerCase().includes('natural') ||
-          v.name.toLowerCase().includes('zira') ||
-          v.name.toLowerCase().includes('google'))
+          v.name.toLowerCase().includes('lekha') ||
+          v.name.toLowerCase().includes('serena') ||
+          v.name.toLowerCase().includes('zira'))
       ) ||
-      voices.find((v) => targetLocales.some((loc) => v.lang.toLowerCase().includes(loc.toLowerCase()))) ||
-      voices.find((v) => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha')) ||
-      voices[0];
+      targetVoicePool.find((v) => targetLocales.some((loc) => v.lang.toLowerCase().includes(loc.toLowerCase()))) ||
+      targetVoicePool.find((v) => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('veena')) ||
+      targetVoicePool[0];
 
     if (matchedVoice) {
       utterance.voice = matchedVoice;
