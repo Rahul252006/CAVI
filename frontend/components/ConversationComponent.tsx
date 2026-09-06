@@ -534,7 +534,7 @@ export default function ConversationComponent({
       try {
         const ai = await AgoraVoiceAI.init({
           rtcEngine: client,
-          rtmConfig: { rtmEngine: rtmClient },
+          ...(rtmClient ? { rtmConfig: { rtmEngine: rtmClient } } : {}),
           renderMode: TranscriptHelperMode.TEXT,
           enableLog: true,
         });
@@ -671,6 +671,7 @@ export default function ConversationComponent({
       }
     };
 
+    if (!rtmClient) return;
     rtmClient.addEventListener('message', handleRtmMessage);
     return () => {
       rtmClient.removeEventListener('message', handleRtmMessage);
@@ -773,7 +774,9 @@ export default function ConversationComponent({
         joinedUID.toString(),
       );
       await client?.renewToken(rtcToken);
-      await rtmClient.renewToken(rtmToken);
+      if (rtmClient) {
+        await rtmClient.renewToken(rtmToken);
+      }
     } catch (error) {
       console.error('Failed to renew Agora token:', error);
     }
