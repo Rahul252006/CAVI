@@ -24,15 +24,28 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data: any = {};
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('[Admin Login Error] Non-JSON response:', text);
+        throw new Error('Server returned an invalid response. Please ensure the backend server is running.');
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Invalid admin credentials');
       }
 
-      localStorage.setItem('echosphere_admin_id', data.admin ? data.admin.adminId : 'admin-01');
-      localStorage.setItem('echosphere_company_id', data.company.id);
+      const adminId = data.admin?.id || data.admin?.adminId || 'admin-01';
+      const companyId = data.company?.id || data.admin?.companyId || 'comp_demo';
 
-      router.push(`/admin?companyId=${data.company.id}`);
+      localStorage.setItem('echosphere_admin_id', adminId);
+      localStorage.setItem('echosphere_company_id', companyId);
+
+      router.push(`/admin?companyId=${companyId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

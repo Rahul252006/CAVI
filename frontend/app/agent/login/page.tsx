@@ -43,8 +43,11 @@ export default function AgentLoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      localStorage.setItem('echosphere_agent_id', data.agent.id);
-      localStorage.setItem('echosphere_company_id', data.company.id);
+      const agentId = data.agent?.id || 'agent_01';
+      const companyId = data.company?.id || data.agent?.companyId || selectedCompanyId || 'comp_demo';
+
+      localStorage.setItem('echosphere_agent_id', agentId);
+      localStorage.setItem('echosphere_company_id', companyId);
 
       router.push('/agent');
     } catch (err) {

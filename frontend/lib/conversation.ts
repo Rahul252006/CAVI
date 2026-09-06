@@ -110,9 +110,29 @@ export function normalizeTranscript(
 export function getMessageList(
   transcript: TranscriptHelperItem<Partial<UserTranscription | AgentTranscription>>[],
 ) {
-  return transcript
-    .filter((item) => item.status !== TurnStatus.IN_PROGRESS)
-    .map(toMessageListItem);
+  const seen = new Set<string>();
+  const list: IMessageListItem[] = [];
+
+  for (const raw of transcript) {
+    if (raw.status === TurnStatus.IN_PROGRESS) continue;
+    const item = toMessageListItem(raw);
+    const textClean = (item.text || '').trim();
+    if (!textClean) continue;
+
+    // Deduplicate exact same text from same speaker within a 5-second window
+    const timeBucket = Math.floor((item.createdAt || Date.now()) / 5000);
+    const contentKey = `${item.uid}_${textClean}_${timeBucket}`;
+    const idKey = raw.turn_id ? `id_${raw.turn_id}` : null;
+
+    if (idKey && seen.has(idKey)) continue;
+    if (seen.has(contentKey)) continue;
+
+    if (idKey) seen.add(idKey);
+    seen.add(contentKey);
+    list.push(item);
+  }
+
+  return list;
 }
 
 // Returns the single active in-progress turn, or null when none exists.
@@ -123,4 +143,25 @@ export function getCurrentInProgressMessage(
 ) {
   const item = transcript.find((entry) => entry.status === TurnStatus.IN_PROGRESS);
   return item ? toMessageListItem(item) : null;
+}
+
+/**
+ * Formats duration in seconds into human-readable string:
+ * - < 60s: "45s"
+ * - >= 60s & < 3600s: "2m 15s" (or "3m" if 0s)
+ * - >= 3600s: "1h 14m" (or "2h" if 0m)
+ */
+export function formatCallDuration(seconds: number | undefined | null): string {
+  const totalSec = Math.max(0, Math.round(Number(seconds) || 0));
+  if (totalSec < 60) {
+    return `${totalSec}s`;
+  }
+  const mins = Math.floor(totalSec / 60);
+  const remainingSecs = totalSec % 60;
+  if (mins < 60) {
+    return remainingSecs > 0 ? `${mins}m ${remainingSecs}s` : `${mins}m`;
+  }
+  const hours = Math.floor(mins / 60);
+  const remainingMins = mins % 60;
+  return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
 }

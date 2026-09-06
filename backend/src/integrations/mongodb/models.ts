@@ -5,43 +5,19 @@ import type {
   CompanyAdmin,
   BrainConfig,
   KnowledgeDoc,
+  KnowledgeGapRequest,
   HumanAgent,
   CallRecord,
   ToolConfig,
   CaseDNA,
 } from '../../types/index.js';
 
-// In-Memory Fallback Storage (Prevents 500 Internal Server Errors when DB is connecting or offline)
-const defaultCompany: CompanyRecord = {
-  id: 'comp_default',
-  name: 'CAVI Enterprise Care',
-  industry: 'Technology & E-Commerce',
-  supportPhone: '+919876543210',
-  adminEmail: 'admin@cavi.ai',
-  adminName: 'Rahul Simhadri',
-  createdAt: new Date().toISOString(),
-  status: 'active',
-  plan: 'enterprise',
-};
-
-const defaultBrain: BrainConfig = {
-  companyId: 'comp_default',
-  agentName: 'CAVI Support Assistant',
-  tone: 'empathetic',
-  primaryLanguage: 'English',
-  allowCodeSwitching: true,
-  allowedActions: ['refund', 'lookup_status', 'reschedule'],
-  maxRefundAmount: 500,
-  requireHumanApproval: true,
-  escalationThreshold: 0.65,
-  customInstructions: 'Help customers resolve orders and bookings with zero repeated stories.',
-};
-
 const inMemoryStore = {
-  companies: new Map<string, CompanyRecord>([['comp_default', defaultCompany]]),
+  companies: new Map<string, CompanyRecord>(),
   admins: new Map<string, CompanyAdmin>(),
-  brainConfigs: new Map<string, BrainConfig>([['comp_default', defaultBrain]]),
+  brainConfigs: new Map<string, BrainConfig>(),
   knowledge: new Map<string, KnowledgeDoc>(),
+  knowledgeGaps: new Map<string, KnowledgeGapRequest>(),
   agents: new Map<string, HumanAgent>(),
   calls: new Map<string, CallRecord>(),
   tools: new Map<string, ToolConfig>(),
@@ -72,38 +48,42 @@ export async function mongoGetCompany(id: string): Promise<CompanyRecord | null>
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetCompany');
     }
   }
-  return inMemoryStore.companies.get(id) || inMemoryStore.companies.get('comp_default') || null;
+  return inMemoryStore.companies.get(id) || null;
 }
 
 export async function mongoGetCompanyBySupportPhone(supportPhone: string): Promise<CompanyRecord | null> {
   const col = await getCollection<CompanyRecord & Document>('companies');
-  const normalized = supportPhone.replace(/\D/g, '');
+  const digits = (supportPhone || '').replace(/\D/g, '');
+  const last10 = digits.slice(-10);
+
   if (col) {
     try {
-      const doc = await col.findOne({
-        $or: [
-          { supportPhone },
-          { supportPhone: normalized },
-          { supportPhone: `+${normalized}` },
-          { supportPhone: { $regex: normalized.slice(-10) } },
-        ],
-      });
-      if (doc) {
-        const { _id, ...rest } = doc as any;
-        return rest as CompanyRecord;
+      if (last10) {
+        const doc = await col.findOne({
+          $or: [
+            { supportPhone },
+            { supportPhone: { $regex: last10 } },
+          ],
+        });
+        if (doc) {
+          const { _id, ...rest } = doc as any;
+          return cleanseCompanySupportPhone(rest as CompanyRecord);
+        }
       }
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for phone lookup');
     }
   }
 
-  for (const comp of inMemoryStore.companies.values()) {
-    const cleanCompPhone = comp.supportPhone.replace(/\D/g, '');
-    if (cleanCompPhone === normalized || normalized.endsWith(cleanCompPhone) || cleanCompPhone.endsWith(normalized)) {
-      return comp;
-    }
-  }
-  return defaultCompany;
+  const allComps = Array.from(inMemoryStore.companies.values()).map(cleanseCompanySupportPhone);
+  return allComps.find((company) => {
+    const savedDigits = (company.supportPhone || '').replace(/\D/g, '');
+    return savedDigits && (savedDigits === digits || savedDigits.endsWith(last10));
+  }) || null;
+}
+
+function cleanseCompanySupportPhone(comp: CompanyRecord): CompanyRecord {
+  return comp;
 }
 
 export async function mongoGetAllCompanies(): Promise<CompanyRecord[]> {
@@ -114,27 +94,29 @@ export async function mongoGetAllCompanies(): Promise<CompanyRecord[]> {
       if (docs.length) {
         return docs.map((d: any) => {
           const { _id, ...rest } = d;
-          return rest as CompanyRecord;
+          return cleanseCompanySupportPhone(rest as CompanyRecord);
         });
       }
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetAllCompanies');
     }
   }
-  return Array.from(inMemoryStore.companies.values());
+  const allComps = Array.from(inMemoryStore.companies.values()).map(cleanseCompanySupportPhone);
+  return allComps;
 }
 
 export async function mongoSaveCompany(company: CompanyRecord): Promise<CompanyRecord> {
-  inMemoryStore.companies.set(company.id, company);
+  const cleansed = cleanseCompanySupportPhone(company);
+  inMemoryStore.companies.set(cleansed.id, cleansed);
   const col = await getCollection<CompanyRecord & Document>('companies');
   if (col) {
     try {
-      await col.updateOne({ id: company.id }, { $set: company }, { upsert: true });
+      await col.updateOne({ id: cleansed.id }, { $set: cleansed }, { upsert: true });
     } catch (err) {
       console.warn('[MongoDB Warning] Failed to persist company to MongoDB');
     }
   }
-  return company;
+  return cleansed;
 }
 
 // 2. Company Admins Collection
@@ -185,7 +167,7 @@ export async function mongoGetBrainConfig(companyId: string): Promise<BrainConfi
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetBrainConfig');
     }
   }
-  return inMemoryStore.brainConfigs.get(companyId) || defaultBrain;
+  return inMemoryStore.brainConfigs.get(companyId) || null;
 }
 
 export async function mongoSaveBrainConfig(config: BrainConfig): Promise<BrainConfig> {
@@ -207,12 +189,10 @@ export async function mongoGetKnowledgeDocs(companyId: string): Promise<Knowledg
   if (col) {
     try {
       const docs = await col.find({ companyId }).toArray();
-      if (docs.length) {
-        return docs.map((d: any) => {
-          const { _id, ...rest } = d;
-          return rest as KnowledgeDoc;
-        });
-      }
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as KnowledgeDoc;
+      });
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetKnowledgeDocs');
     }
@@ -247,7 +227,71 @@ export async function mongoDeleteKnowledgeDoc(id: string): Promise<boolean> {
   return true;
 }
 
+// Knowledge Gap Requests Collection (Admin Notifications for Missing Knowledge Base Docs)
+export async function mongoGetKnowledgeGaps(companyId?: string): Promise<KnowledgeGapRequest[]> {
+  const col = await getCollection<KnowledgeGapRequest & Document>('knowledge_gap_requests');
+  if (col) {
+    try {
+      const query = companyId && companyId !== 'undefined' ? { companyId } : {};
+      const docs = await col.find(query).sort({ createdAt: -1 }).toArray();
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as KnowledgeGapRequest;
+      });
+    } catch (err) {
+      console.warn('[MongoDB Fallback] Falling back to memory for mongoGetKnowledgeGaps');
+    }
+  }
+
+    return Array.from(inMemoryStore.knowledgeGaps.values()).filter((g) =>
+      !companyId || g.companyId === companyId
+    );
+}
+
+export async function mongoSaveKnowledgeGap(gap: KnowledgeGapRequest): Promise<KnowledgeGapRequest> {
+  inMemoryStore.knowledgeGaps.set(gap.id, gap);
+  const col = await getCollection<KnowledgeGapRequest & Document>('knowledge_gap_requests');
+  if (col) {
+    try {
+      await col.updateOne({ id: gap.id }, { $set: gap }, { upsert: true });
+    } catch (err) {
+      console.warn('[MongoDB Warning] Failed to persist knowledge gap request to MongoDB');
+    }
+  }
+  return gap;
+}
+
+export async function mongoDeleteKnowledgeGap(id: string): Promise<boolean> {
+  inMemoryStore.knowledgeGaps.delete(id);
+  const col = await getCollection<KnowledgeGapRequest & Document>('knowledge_gap_requests');
+  if (col) {
+    try {
+      const result = await col.deleteOne({ id });
+      return result.deletedCount > 0;
+    } catch (err) {
+      console.warn('[MongoDB Warning] Failed to delete knowledge gap request from MongoDB');
+    }
+  }
+  return true;
+}
+
 // 5. Human Agents (Officers) Collection
+export async function mongoGetAgentById(id: string): Promise<HumanAgent | null> {
+  const col = await getCollection<HumanAgent & Document>('human_agents');
+  if (col) {
+    try {
+      const doc = await col.findOne({ id });
+      if (doc) {
+        const { _id, ...rest } = doc as any;
+        return rest as HumanAgent;
+      }
+    } catch (err) {
+      console.warn('[MongoDB Fallback] Falling back to memory for mongoGetAgentById');
+    }
+  }
+  return inMemoryStore.agents.get(id) || null;
+}
+
 export async function mongoGetAgentByEmail(email: string): Promise<HumanAgent | null> {
   const col = await getCollection<HumanAgent & Document>('human_agents');
   const lower = email.toLowerCase();
@@ -268,22 +312,26 @@ export async function mongoGetAgentByEmail(email: string): Promise<HumanAgent | 
   return null;
 }
 
-export async function mongoGetAgentsByCompany(companyId: string): Promise<HumanAgent[]> {
+export async function mongoGetAgentsByCompany(companyId?: string, includeRemoved = false): Promise<HumanAgent[]> {
   const col = await getCollection<HumanAgent & Document>('human_agents');
   if (col) {
     try {
-      const docs = await col.find({ companyId }).toArray();
-      if (docs.length) {
-        return docs.map((d: any) => {
-          const { _id, ...rest } = d;
-          return rest as HumanAgent;
-        });
-      }
+      const query: any = companyId && companyId !== 'undefined'
+        ? (includeRemoved ? { companyId } : { companyId, status: { $ne: 'removed' } })
+        : (includeRemoved ? {} : { status: { $ne: 'removed' } });
+      const docs = await col.find(query).toArray();
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as HumanAgent;
+      });
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetAgentsByCompany');
     }
   }
-  return Array.from(inMemoryStore.agents.values()).filter((a) => a.companyId === companyId);
+
+  return Array.from(inMemoryStore.agents.values()).filter((a) =>
+    (!companyId || a.companyId === companyId) && (includeRemoved || a.status !== 'removed')
+  );
 }
 
 export async function mongoSaveAgent(agent: HumanAgent): Promise<HumanAgent> {
@@ -316,22 +364,22 @@ export async function mongoGetCall(id: string): Promise<CallRecord | null> {
   return inMemoryStore.calls.get(id) || null;
 }
 
-export async function mongoGetCallsByCompany(companyId: string): Promise<CallRecord[]> {
+export async function mongoGetCallsByCompany(companyId?: string): Promise<CallRecord[]> {
   const col = await getCollection<CallRecord & Document>('call_records');
   if (col) {
     try {
-      const docs = await col.find({ companyId }).sort({ startedAt: -1 }).toArray();
-      if (docs.length) {
-        return docs.map((d: any) => {
-          const { _id, ...rest } = d;
-          return rest as CallRecord;
-        });
-      }
+      const query = companyId && companyId !== 'undefined' && companyId.trim() !== '' ? { companyId } : {};
+      const docs = await col.find(query).sort({ startedAt: -1 }).toArray();
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as CallRecord;
+      });
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetCallsByCompany');
     }
   }
-  return Array.from(inMemoryStore.calls.values()).filter((c) => c.companyId === companyId);
+
+  return Array.from(inMemoryStore.calls.values()).filter((c) => !companyId || c.companyId === companyId);
 }
 
 export async function mongoSaveCall(call: CallRecord): Promise<CallRecord> {
@@ -353,12 +401,10 @@ export async function mongoGetToolsByCompany(companyId: string): Promise<ToolCon
   if (col) {
     try {
       const docs = await col.find({ companyId }).toArray();
-      if (docs.length) {
-        return docs.map((d: any) => {
-          const { _id, ...rest } = d;
-          return rest as ToolConfig;
-        });
-      }
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as ToolConfig;
+      });
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetToolsByCompany');
     }
@@ -384,19 +430,21 @@ export async function mongoGetCases(companyId?: string): Promise<CaseDNA[]> {
   const col = await getCollection<CaseDNA & Document>('cases');
   if (col) {
     try {
-      const query = companyId ? { companyId } : {};
+      const query = companyId && companyId !== 'undefined' && companyId !== 'null'
+        ? { companyId }
+        : {};
       const docs = await col.find(query).sort({ updatedAt: -1 }).toArray();
-      if (docs.length) {
-        return docs.map((d: any) => {
-          const { _id, ...rest } = d;
-          return rest as CaseDNA;
-        });
-      }
+      return docs.map((d: any) => {
+        const { _id, ...rest } = d;
+        return rest as CaseDNA;
+      });
     } catch (err) {
       console.warn('[MongoDB Fallback] Falling back to memory for mongoGetCases');
     }
   }
-  return Array.from(inMemoryStore.cases.values()).filter((c) => !companyId || c.companyId === companyId);
+  return Array.from(inMemoryStore.cases.values())
+    .filter((c) => !companyId || c.companyId === companyId)
+    .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
 }
 
 export async function mongoGetCase(id: string): Promise<CaseDNA | null> {
@@ -427,4 +475,24 @@ export async function mongoSaveCase(caseDna: CaseDNA): Promise<CaseDNA> {
     }
   }
   return caseDna;
+}
+
+export async function mongoClearAllDatabaseData(): Promise<boolean> {
+  inMemoryStore.cases.clear();
+  inMemoryStore.calls.clear();
+  inMemoryStore.knowledge.clear();
+  inMemoryStore.agents.clear();
+
+  const collections = ['cases', 'call_records', 'knowledge_docs', 'human_agents'];
+  for (const name of collections) {
+    const col = await getCollection(name);
+    if (col) {
+      try {
+        await col.deleteMany({});
+      } catch (err) {
+        console.warn(`[MongoDB Clear Warning] Failed clearing collection ${name}`);
+      }
+    }
+  }
+  return true;
 }

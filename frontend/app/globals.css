@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -56,13 +58,17 @@
   --viz-stop-2: 0 0% 78%;
   --viz-stop-3: 224 76% 48%;
 
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: Lora, Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-lora), Lora, Georgia, serif;
+  --font-display: var(--font-lora), Lora, Georgia, serif;
 }
 
 @layer base {
   * {
     @apply border-border;
+    font-family: var(--font-lora), Lora, Georgia, serif;
+  }
+  html, body, input, button, select, textarea {
+    font-family: var(--font-lora), Lora, Georgia, serif;
   }
   html {
     scroll-behavior: smooth;
@@ -70,7 +76,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
+    font-family: var(--font-lora), Lora, Georgia, serif;
   }
 }
 
@@ -207,45 +213,49 @@ input:focus, select:focus, textarea:focus {
   border-color: #2563eb !important;
 }
 
-/* --- Global Button Hover & Active Slow Fade In / Fade Out Animation (0.3s) --- */
+/* --- Global Button Hover Slow Fade In / Fade Out Animation (0.3s) --- */
 button,
-a,
+a.inline-flex,
+a.rounded-full,
 .soft-action,
 .soft-action-secondary,
 .btn-primary-gradient,
 [role="button"] {
-  transition: background-color 0.3s ease-in-out,
-              background 0.3s ease-in-out,
+  transition: filter 0.3s ease-in-out,
+              opacity 0.3s ease-in-out,
+              background-color 0.3s ease-in-out,
               border-color 0.3s ease-in-out,
-              box-shadow 0.3s ease-in-out,
-              color 0.3s ease-in-out,
-              opacity 0.3s ease-in-out !important;
+              box-shadow 0.3s ease-in-out !important;
 }
 
 button:hover,
-a:hover,
+a.inline-flex:hover,
+a.rounded-full:hover,
 .soft-action:hover,
 .soft-action-secondary:hover,
 .btn-primary-gradient:hover,
 [role="button"]:hover {
   transform: none !important;
-  transition: background-color 0.3s ease-in-out,
-              background 0.3s ease-in-out,
+  filter: brightness(1.15) !important;
+  opacity: 0.92 !important;
+  transition: filter 0.3s ease-in-out,
+              opacity 0.3s ease-in-out,
+              background-color 0.3s ease-in-out,
               border-color 0.3s ease-in-out,
-              box-shadow 0.3s ease-in-out,
-              color 0.3s ease-in-out,
-              opacity 0.3s ease-in-out !important;
+              box-shadow 0.3s ease-in-out !important;
 }
 
 button:active,
-a:active,
+a.inline-flex:active,
+a.rounded-full:active,
 .soft-action:active,
 .soft-action-secondary:active,
 .btn-primary-gradient:active,
 [role="button"]:active {
   transform: none !important;
   opacity: 0.75 !important;
-  transition: opacity 0.3s ease-in-out !important;
+  filter: brightness(0.95) !important;
+  transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out !important;
 }
 
 /* --- Animations --- */

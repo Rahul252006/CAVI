@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
-import { getCases, getCase, createCaseDNA } from '../services/caseService.js';
+import { getCases, getCase, createCaseDNA, updateCase } from '../services/caseService.js';
 
 export async function handleGetCases(req: Request, res: Response) {
   try {
     const { companyId } = req.query;
-    const cases = await getCases(typeof companyId === 'string' ? companyId : undefined);
+    const cleanCompId =
+      typeof companyId === 'string' && companyId.trim() && companyId !== 'undefined' && companyId !== 'null'
+        ? companyId.trim()
+        : undefined;
+    const cases = await getCases(cleanCompId);
     return res.json({ success: true, cases });
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });
@@ -29,3 +33,14 @@ export async function handleCreateCase(req: Request, res: Response) {
     return res.status(400).json({ success: false, error: err.message });
   }
 }
+
+export async function handleUpdateCase(req: Request, res: Response) {
+  try {
+    const updated = await updateCase(String(req.params.caseId), req.body);
+    if (!updated) return res.status(404).json({ success: false, error: 'Case not found' });
+    return res.json({ success: true, case: updated });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+

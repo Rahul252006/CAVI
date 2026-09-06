@@ -63,19 +63,19 @@ export default function LandingPage() {
 
   return (
     <div className="soft-page flex flex-col">
-      {/* Floating Liquid Glass Island Navbar (Dynamically adapts text & glass color over dark backgrounds) */}
+      {/* Floating Liquid Glass Island Navbar (Strictly contained inside rounded pill container) */}
       <header
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl transition-all duration-500 ease-out ${
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl transition-all duration-300 ease-in-out ${
           showFloatingNav
             ? 'opacity-100 translate-y-0 pointer-events-auto'
-            : 'opacity-0 -translate-y-8 pointer-events-none'
+            : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
       >
         <div
-          className={`flex h-14 items-center justify-between rounded-full px-6 py-2 transition-all duration-300 backdrop-blur-3xl ${
+          className={`flex h-14 items-center justify-between rounded-full overflow-hidden px-6 py-2 transition-all duration-300 ease-in-out backdrop-blur-xl backdrop-saturate-150 ${
             isDarkNavbar
-              ? 'border border-white/20 bg-neutral-950/85 text-white shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)]'
-              : 'border border-white/80 bg-white/92 text-neutral-950 shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
+              ? 'border border-white/20 bg-neutral-950/75 text-white shadow-[0_16px_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)]'
+              : 'border border-white/80 bg-white/70 text-neutral-950 shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)]'
           }`}
         >
           {/* 1. Left: Brand Logo */}

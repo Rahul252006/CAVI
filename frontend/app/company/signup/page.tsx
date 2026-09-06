@@ -17,6 +17,7 @@ export default function CompanySignupPage() {
     mobile: '',
     jobTitle: '',
     companyName: '',
+    supportPhone: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -43,21 +44,42 @@ export default function CompanySignupPage() {
     setIsLoading(true);
 
     try {
+      const payload = {
+        ...formData,
+        adminEmail: formData.email,
+        adminName: `${formData.firstName} ${formData.lastName}`.trim(),
+        supportPhone: formData.supportPhone,
+        mobile: formData.mobile,
+        industry: 'Customer Support',
+      };
+
       const res = await fetch('/api/admin/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data: any = {};
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('[Signup Error] Non-JSON response:', text);
+        throw new Error('Server returned an invalid response. Please ensure the backend server is running.');
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to create Company Admin account');
       }
 
-      localStorage.setItem('echosphere_admin_id', data.admin.adminId);
-      localStorage.setItem('echosphere_company_id', data.company.id);
+      const adminId = data.admin?.id || data.admin?.adminId || 'admin-01';
+      const companyId = data.company?.id || data.admin?.companyId || 'comp_demo';
 
-      router.push(data.nextStepUrl || `/company/onboard?companyId=${data.company.id}`);
+      localStorage.setItem('echosphere_admin_id', adminId);
+      localStorage.setItem('echosphere_company_id', companyId);
+
+      router.push(data.nextStepUrl || `/company/onboard?companyId=${companyId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
     } finally {
@@ -140,6 +162,11 @@ export default function CompanySignupPage() {
                   <label className="soft-label">Role</label>
                   <input type="text" name="jobTitle" required value={formData.jobTitle} onChange={handleChange} placeholder="VP Customer Support" className="soft-field" />
                 </div>
+              </div>
+
+              <div>
+                <label className="soft-label">Registered customer support hotline</label>
+                <input type="tel" name="supportPhone" required value={formData.supportPhone} onChange={handleChange} placeholder="+91 80XXXXXXX" className="soft-field font-mono" />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

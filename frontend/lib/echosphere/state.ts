@@ -123,6 +123,29 @@ export function processConversationTurn(
   // 7. Decision engine
   const decision = evaluateDecision(state, userUtterance || '');
 
+  // Map decision prompt/question to state.resolution.nextBestQuestion for AI voice response
+  if (decision.type === 'confirm' && decision.prompt) {
+    state.resolution.nextBestQuestion = decision.prompt;
+    state.resolution.status = 'in_progress';
+  } else if (decision.type === 'ask' && decision.question) {
+    state.resolution.nextBestQuestion = decision.question;
+    state.resolution.status = 'in_progress';
+  } else if (decision.type === 'escalate') {
+    state.resolution.nextBestQuestion = `I am transferring you to an officer now (${decision.targetSpecialist || 'Customer Resolution Officer'}). You will not need to repeat your story.`;
+    state.resolution.status = 'escalating';
+  } else if (decision.type === 'action') {
+    state.resolution.nextBestQuestion = `I have prepared the request for transaction ${decision.payload?.transactionId}. I will keep the details attached for the support team.`;
+    state.resolution.status = 'likely_resolved';
+  } else if (userUtterance) {
+    const issueVal = state.facts.issue?.value || 'your issue';
+    if (state.language.primary === 'hi' || state.language.detected.includes('hi')) {
+      state.resolution.nextBestQuestion = `Ji, main samajh gaya aapki problem (${issueVal}). Kya aap transaction amount ya ID confirm kar sakte hain?`;
+    } else {
+      state.resolution.nextBestQuestion = `I understand your request regarding ${issueVal}. Could you share the transaction ID or amount involved?`;
+    }
+    state.resolution.status = 'in_progress';
+  }
+
   // 8. Handle escalation trigger if decision is escalate
   if (decision.type === 'escalate') {
     const escalationRes = handleEscalationTrigger(state, decision);

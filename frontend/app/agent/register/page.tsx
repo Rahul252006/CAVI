@@ -87,7 +87,7 @@ export default function AgentRegisterPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Rahul Simhadri"
+              placeholder="e.g. Vikram Malhotra"
               className="w-full rounded-lg border border-border/80 bg-background/80 px-3.5 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>

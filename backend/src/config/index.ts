@@ -1,9 +1,15 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables from .env or .env.local
+// Load environment variables from all possible .env and .env.local files
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+dotenv.config({ path: path.resolve(process.cwd(), 'backend/.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '../backend/.env') });
+dotenv.config({ path: path.resolve(process.cwd(), 'frontend/.env.local') });
+dotenv.config({ path: path.resolve(process.cwd(), '../frontend/.env.local') });
+dotenv.config({ path: path.resolve(process.cwd(), '../.env.local') });
 
 export const config = {
   port: parseInt(process.env.PORT || '4000', 10),
@@ -17,4 +23,16 @@ export const config = {
     agentId: process.env.AGORA_AGENT_ID || process.env.NEXT_PUBLIC_AGORA_AGENT_ID || '',
   },
   jwtSecret: process.env.JWT_SECRET || 'cavi_super_secret_jwt_key_2026',
+  elevenlabs: {
+    apiKey: process.env.ELEVENLABS_API_KEY || process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY || '',
+    voiceIdEn: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB',
+    voiceIdHi: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_HI || process.env.ELEVENLABS_VOICE_ID_HI || 'ErXwobaYiN019PkySvjV',
+    voiceIdTe: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TE || process.env.ELEVENLABS_VOICE_ID_TE || 'TxGEqnscrfWW6350DD69',
+    voiceIdTa: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TA || process.env.ELEVENLABS_VOICE_ID_TA || 'VR6AewLTigWG4xSOukaG',
+  },
+  deepgram: {
+    apiKey: process.env.DEEPGRAM_API_KEY || process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY || '',
+    voiceModel: process.env.DEEPGRAM_VOICE_MODEL || process.env.NEXT_PUBLIC_DEEPGRAM_VOICE_MODEL || 'flux-priya-en',
+    sttModel: process.env.DEEPGRAM_STT_MODEL || process.env.NEXT_PUBLIC_DEEPGRAM_STT_MODEL || 'flux-general-en',
+  },
 };

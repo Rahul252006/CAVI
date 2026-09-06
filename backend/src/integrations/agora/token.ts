@@ -1,14 +1,14 @@
 import agoraToken from 'agora-access-token';
 import { config } from '../../config/index.js';
 
-const { RtcTokenBuilder, RtcRole } = agoraToken as any;
+const { RtcTokenBuilder, RtcRole, RtmTokenBuilder, RtmRole } = agoraToken as any;
 
 export function generateAgoraToken(
   channel: string,
   uid: number | string = 0,
   role: 'publisher' | 'subscriber' = 'publisher',
   expireTimeSeconds: number = 3600
-): { token: string; appId: string; channel: string; uid: number | string } {
+): { token: string; rtmToken: string; appId: string; channel: string; uid: number | string; rtmUserId: string } {
   const appId = config.agora.appId;
   const appCert = config.agora.appCertificate;
 
@@ -16,9 +16,10 @@ export function generateAgoraToken(
     throw new Error('AGORA_APP_ID is not configured');
   }
 
-  // If App Certificate is absent (testing mode), return blank token
+  const rtmUserId = typeof uid === 'string' ? uid : `user_${uid || Math.floor(Math.random() * 899999 + 100000)}`;
+
   if (!appCert) {
-    return { token: '', appId, channel, uid };
+    return { token: '', rtmToken: '', appId, channel, uid, rtmUserId };
   }
 
   const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -32,5 +33,12 @@ export function generateAgoraToken(
     token = RtcTokenBuilder.buildTokenWithUserAccount(appId, appCert, channel, uid, rtcRole, privilegeExpiredTs);
   }
 
-  return { token, appId, channel, uid };
+  let rtmToken = '';
+  try {
+    rtmToken = RtmTokenBuilder.buildToken(appId, appCert, rtmUserId, RtmRole.Rtm_User, privilegeExpiredTs);
+  } catch (err) {
+    console.warn('[AgoraToken] Failed to build RTM token:', err);
+  }
+
+  return { token, rtmToken, appId, channel, uid, rtmUserId };
 }

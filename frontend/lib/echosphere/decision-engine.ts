@@ -3,6 +3,12 @@ import { routeSpecialist } from './case-dna';
 
 export function evaluateDecision(state: ConversationState, latestUserUtterance: string = ''): Decision {
   const lower = latestUserUtterance.toLowerCase();
+  const historyConfidence = Math.min(
+    state.intent.confidence || 1,
+    state.language.confidence || 1,
+    state.conversationHealth.confidence || 1,
+    state.emotion.confidence || 1
+  );
 
   // 1. Safety & Policy Boundaries Check (Critical P0)
   if (
@@ -14,13 +20,31 @@ export function evaluateDecision(state: ConversationState, latestUserUtterance: 
     lower.includes('police') ||
     lower.includes('ambulance') ||
     lower.includes('112') ||
-    lower.includes('911')
+    lower.includes('911') ||
+    lower.includes('diagnosis') ||
+    lower.includes('suicide') ||
+    lower.includes('self harm') ||
+    lower.includes('legal advice') ||
+    lower.includes('financial advice') ||
+    lower.includes('dawa') ||
+    lower.includes('khoon') ||
+    lower.includes('hospital')
   ) {
     return {
       type: 'escalate',
       reason: 'Safety Boundary: Medical or emergency service inquiry outside non-clinical support scope',
       priority: 'critical',
       targetSpecialist: 'Emergency Referral / Human Supervisor',
+    };
+  }
+
+  if (historyConfidence < 0.45) {
+    const specialist = routeSpecialist(state.intent.category, state.facts.issue?.value);
+    return {
+      type: 'escalate',
+      reason: `Low-confidence handoff: understanding confidence is ${Math.round(historyConfidence * 100)}%`,
+      priority: 'high',
+      targetSpecialist: specialist,
     };
   }
 
@@ -83,11 +107,18 @@ export function evaluateDecision(state: ConversationState, latestUserUtterance: 
     state.facts.amount?.confirmed &&
     (lower.includes('yes') || lower.includes('ha') || lower.includes('haan') || lower.includes('kar do') || lower.includes('please'))
   ) {
+    if (!state.facts.transactionId?.confirmed) {
+      return {
+        type: 'ask',
+        field: 'transactionId',
+        question: 'Please share the transaction ID so I can attach the refund request to the correct payment.',
+      };
+    }
     return {
       type: 'action',
       action: 'request_refund',
       payload: {
-        transactionId: state.facts.transactionId?.value || 'TXN-8392',
+        transactionId: state.facts.transactionId.value,
         amount: parseFloat(state.facts.amount.value.replace(/[^0-9.]/g, '')),
         confirmedByUser: true,
       },

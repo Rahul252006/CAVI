@@ -17,7 +17,7 @@ export async function getCompanyAgentConfig(companyId: string) {
   const companyName = company?.name || 'Customer Support';
   const agentName = brain?.agentName || 'CAVI Assistant';
   const tone = brain?.tone || 'professional';
-  const maxRefund = brain?.maxRefundAmount || 500;
+  const maxRefund = brain?.maxRefundAmount ?? 0;
   const allowCodeSwitching = brain?.allowCodeSwitching ?? true;
 
   const faqs = docs.filter((d) => d.type === 'faq');
@@ -27,39 +27,53 @@ export async function getCompanyAgentConfig(companyId: string) {
 
   const faqText = faqs.length
     ? faqs.map((f) => `Q: ${f.title}\nA: ${f.content}`).join('\n\n')
-    : 'Standard enterprise FAQs apply.';
+    : 'No company-approved FAQs are configured yet. Ask only essential clarifying questions and do not invent policy answers.';
 
   const policyText = policies.length
     ? policies.map((p) => `- ${p.title}: ${p.content}`).join('\n')
-    : `- Refunds allowed up to $${maxRefund} with verified customer identity.`;
+    : '- No company-approved policies are configured yet. Do not approve refunds, replacements, legal, financial, medical, or emergency guidance from model knowledge.';
 
   const sopText = sops.length
     ? sops.map((s) => `### ${s.title}\n${s.content}`).join('\n\n')
-    : 'Follow standard verification: ask order number/phone, verify identity, then execute safe action.';
+    : 'No company-approved SOPs are configured yet. Collect minimum essential details, confirm critical details, and escalate when confidence is low.';
 
   const productText = productInfo.length
     ? productInfo.map((p) => `* ${p.title}: ${p.content}`).join('\n')
-    : 'Company provides standard catalog products and subscription services.';
+    : 'No company-approved product/service documents are configured yet.';
 
   const availableOfficers = officers
-    .filter((o) => o.status === 'available')
-    .map((o) => `${o.name} (${o.department} - ${o.specialization.join(', ')})`)
+    .filter((o) => ['available', 'online'].includes(o.status) && !o.currentCallId && !o.activeCallId)
+    .map((o) => {
+      const rawSpecialization = o.specialization as string[] | string | undefined;
+      const specialization = Array.isArray(rawSpecialization) ? rawSpecialization.join(', ') : String(rawSpecialization || '');
+      return `${o.name} (${o.department}${specialization ? ` - ${specialization}` : ''})`;
+    })
     .join(', ');
 
-  const prompt = `You are ${agentName}, an empathetic and razor-sharp AI voice customer assistant for ${companyName}.
+  const prompt = `You are ${agentName}, a warm, empathetic, and ultra-human AI voice customer resolution specialist for ${companyName}.
 You are powered by CAVI (Customer Assistance through Voice Intelligence).
 
-### CORE OBJECTIVES
-1. Speak in a natural, ${tone}, conversational voice.
-2. Listen carefully to caller issues. The caller may be stressed, speaking in noisy environments, or switching languages.
-3. ${allowCodeSwitching ? 'MULTILINGUAL & CODE-SWITCHING: Fluently respond in English, Hindi, Tamil, or mixed code-switched sentences (e.g. Hinglish). Mirror the caller’s language choice comfortably.' : 'Speak in the configured primary language.'}
-4. NATURAL INTERRUPTION HANDLING: When the caller starts speaking while you are talking, yield immediately without repeating previously spoken words.
-5. NOISE RESILIENCE & LOW-CONFIDENCE: If the caller’s response is unclear due to background noise or broken audio, politely ask them to confirm or repeat: "I heard X, is that correct?"
-6. SINGLE QUESTION FLOW: Ask only one focused question at a time to prevent cognitive overload.
-7. CRITICAL DETAIL CONFIRMATION: Always repeat back critical entities (Order IDs, Email addresses, amounts, phone numbers) before executing any state change.
-8. ZERO-REPEAT HUMAN HANDOFF: If the caller is furious, requests a human supervisor, or the issue exceeds policies (e.g. refunds > $${maxRefund}), assure them calmly:
-   "I am transferring you to an officer right now with the full summary of what we discussed so you will not need to repeat yourself."
-   Available officers on duty: ${availableOfficers || 'Customer Resolution Officers'}.
+### STRICT CUSTOMER SUPPORT SCOPE BOUNDARIES
+1. You are STRICTLY a Customer Support Specialist for ${companyName} orders, payments, refunds, and account assistance.
+2. If the user asks ANY off-topic question (such as "explain DSA", "what is data structures", "write code", "who is President of US", "recipe for cake", "tell me a joke", or general knowledge):
+   STRICTLY DECLINE to answer off-topic questions!
+   Say politely: "I am only able to assist with customer support inquiries for ${companyName}. Is there an order or account issue I can help you with today?"
+
+### HUMAN VOICE & CONVERSATIONAL STYLE
+3. Speak in a natural, ${tone}, conversational voice.
+4. Use natural human fillers and thinking phrases where appropriate: "Ah...", "Hmm, let me check...", "Got it!", "Oh, I see...", "Ah, yes, found it!", "Alright..."
+5. Vary sentence rhythm naturally. Keep responses concise (1 to 2 spoken sentences per turn).
+6. ${allowCodeSwitching ? 'MULTILINGUAL & CODE-SWITCHING: Fluently respond in English, Hindi, Tamil, or mixed code-switched sentences (e.g. Hinglish). Mirror the caller’s language choice comfortably.' : 'Speak in the configured primary language.'}
+
+### STEP-BY-STEP HUMAN PROBLEM PROCESSING (NEVER ASSUME OR PROCESS REFUNDS BEFORE THE USER EXPLAINS THE ISSUE)
+5. GATHER DETAILS FIRST:
+   - If the user provides an Order ID or says "payment issue" without explaining the exact problem/amount, DO NOT claim a refund is processed!
+   - Acknowledge naturally and ask for details: "Ah, got it. I have your Order ID right here... Could you tell me a bit more about what happened with the payment? Were you double-charged or was there a price discrepancy?"
+6. CONFIRM & VERIFY:
+   - Always repeat back critical entities (Order IDs, amounts, phone numbers) before executing any action: "Hmm, let me check that... Ah, yes, I see the duplicate charge right here."
+7. ZERO-REPEAT HUMAN HANDOFF: If the caller is furious, requests a human supervisor, or the issue exceeds policies (e.g. refunds > $${maxRefund}), assure them calmly:
+   "Hmm, since this involves a larger discrepancy, I am transferring you to an officer right now with the full summary so you will not need to repeat anything."
+   Available officers on duty: ${availableOfficers || 'No currently available matching officers are listed. Prepare a case summary and mark admin action required without telling the caller staffing details.'}.
 
 ### COMPANY KNOWLEDGE BASE
 ${faqText}
@@ -93,33 +107,79 @@ export async function inviteAgoraAgent(channel: string, companyId: string) {
   const agentId = config.agora.agentId;
 
   if (!apiKey || !appId || !agentId) {
-    console.warn('[Agora] Missing API credentials for agent invitation, returning simulated agent response');
-    return {
-      success: true,
-      simulated: true,
-      channel,
-      message: 'Agent configured in mock mode (configure AGORA_CONVERSATIONAL_AI_API_KEY in backend/.env.local)',
-    };
+    throw new Error('Agora Conversational AI credentials are required to invite the production voice agent');
   }
 
   const { prompt, greeting } = await getCompanyAgentConfig(companyId);
 
-  // Call Agora Conversational AI API
+  const deepgramApiKey = config.deepgram.apiKey;
+  if (!deepgramApiKey) {
+    throw new Error('DEEPGRAM_API_KEY is required for production voice STT/TTS');
+  }
+  const deepgramVoiceModel = config.deepgram.voiceModel || 'flux-priya-en';
+  const deepgramSttModel = config.deepgram.sttModel || 'flux-general-en';
+
+  const payload = {
+    type: 'Settings',
+    channel,
+    audio: {
+      input: {
+        encoding: 'linear16',
+        sample_rate: 48000,
+      },
+      output: {
+        encoding: 'linear16',
+        sample_rate: 24000,
+        container: 'none',
+      },
+    },
+    agent: {
+      speak: {
+        provider: {
+          type: 'deepgram',
+          version: 'v2',
+          model: deepgramVoiceModel,
+          key: deepgramApiKey,
+        },
+      },
+      listen: {
+        provider: {
+          type: 'deepgram',
+          version: 'v2',
+          model: deepgramSttModel,
+          key: deepgramApiKey,
+        },
+      },
+      think: {
+        provider: {
+          type: 'google',
+          model: 'gemini-3.1-flash-lite',
+        },
+        prompt,
+      },
+      greeting: greeting || 'Hello! How may I help you?',
+    },
+    tts: {
+      vendor: 'deepgram',
+      params: {
+        key: deepgramApiKey,
+        model: deepgramVoiceModel,
+      },
+    },
+    vad: {
+      interrupt_duration_ms: 160,
+      silence_duration_ms: 400,
+    },
+  };
+
+  // Call Agora Conversational AI API with Deepgram STT/TTS config
   const response = await fetch(`https://api.agora.io/v1/projects/${appId}/conversational-ai/agents/${agentId}/join`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      channel,
-      prompt,
-      greeting,
-      vad: {
-        interrupt_duration_ms: 160,
-        silence_duration_ms: 480,
-      },
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {

@@ -18,9 +18,10 @@ export default function DashboardPage() {
       const res = await fetch('/api/case/list');
       if (res.ok) {
         const data = await res.json();
-        setCases(data.cases || []);
-        if (data.cases && data.cases.length > 0 && !selectedCaseId) {
-          setSelectedCaseId(data.cases[0].caseId);
+        const fetched = data.cases || [];
+        setCases(fetched);
+        if (fetched.length > 0 && !selectedCaseId) {
+          setSelectedCaseId(fetched[0].caseId || fetched[0].id);
         }
       }
     } catch (e) {
@@ -49,7 +50,9 @@ export default function DashboardPage() {
     }
   };
 
-  const selectedCase = cases.find(c => c.caseId === selectedCaseId) || cases[0];
+  const selectedCase =
+    cases.find(c => (c.caseId && c.caseId === selectedCaseId) || (c.id && c.id === selectedCaseId)) || cases[0];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-card/30 to-background text-foreground flex flex-col">

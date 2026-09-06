@@ -86,27 +86,32 @@ export type ToolConfig = {
 export type HumanAgent = {
   id: string;
   companyId: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   name: string;
   email: string;
   phone: string;
-  employeeId: string;
-  jobTitle: string;
+  mobile?: string;
+  employeeId?: string;
+  jobTitle?: string;
+  role?: string;
   profilePhoto?: string;
-  department: 'Payments & Refunds' | 'Technical Support' | 'Account Security' | 'General Customer Care';
-  specialization: string;
-  languagesSpoken: string[];
-  yearsExperience: number;
-  workingHours: string;
-  timezone: string;
-  accountStatus: 'active' | 'invited' | 'suspended';
-  status: 'online' | 'busy' | 'offline';
-  assignedCasesCount: number;
-  maxCapacity: number;
-  lastActiveTime: string;
+  department: string;
+  specialization?: string;
+  languagesSpoken?: string[];
+  yearsExperience?: number;
+  workingHours?: string;
+  timezone?: string;
+  accountStatus?: 'active' | 'invited' | 'suspended' | 'removed';
+  status: 'online' | 'available' | 'busy' | 'offline' | 'removed';
+  removalReason?: string;
+  assignedCasesCount?: number;
+  maxCapacity?: number;
+  lastActiveTime?: string;
   activeCaseId?: string;
-  registeredAt: string;
+  registeredAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type CallRecord = {
@@ -135,7 +140,23 @@ export type KnowledgeDoc = {
   title: string;
   category: string;
   content: string;
+  type?: 'faq' | 'policy' | 'sop' | 'product_info';
+  aiGenerated?: boolean;
+  source?: 'manual' | 'ai_generated';
+  aiReasoning?: string;
   updatedAt: string;
+  createdAt?: string;
+};
+
+export type KnowledgeGapRequest = {
+  id: string;
+  companyId: string;
+  problemSummary: string;
+  suggestedCategory: 'policy' | 'sop' | 'faq' | 'product_info' | string;
+  recommendedAction: string;
+  callerPhone?: string;
+  createdAt: string;
+  status: 'pending' | 'resolved' | string;
 };
 
 export type BillingInvoice = {

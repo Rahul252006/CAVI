@@ -1,17 +1,17 @@
 import { apiRequest } from './client';
 
 export async function getCases(companyId?: string) {
-  return apiRequest('/api/cases', {
+  return apiRequest('/api/case/list', {
     params: { companyId },
   });
 }
 
 export async function getCase(caseId: string) {
-  return apiRequest(`/api/cases/${caseId}`);
+  return apiRequest(`/api/case/${caseId}`);
 }
 
 export async function createCase(caseData: Record<string, any>) {
-  return apiRequest('/api/cases/create', {
+  return apiRequest('/api/case/create', {
     method: 'POST',
     body: JSON.stringify(caseData),
   });

@@ -16,40 +16,31 @@ export const CustomerLookupSchema = z.object({
 
 export async function checkTransaction(transactionId: string) {
   const parsed = TransactionCheckSchema.parse({ transactionId });
-  // Deterministic mock for demo
   return {
-    success: true,
+    success: false,
     transactionId: parsed.transactionId,
-    status: 'failed',
-    amount: 2499,
-    currency: 'INR',
-    date: new Date().toISOString().split('T')[0],
-    merchant: 'Demo Store',
-    gatewayError: 'Payment gateway timeout (HTTP 504) - Auto-reversal initiated',
+    status: 'integration_not_configured',
+    message: 'No live transaction lookup integration is configured for this company.',
   };
 }
 
 export async function requestRefund(transactionId: string, amount: number, confirmedByUser: boolean) {
   const parsed = RefundRequestSchema.parse({ transactionId, amount, confirmedByUser });
   return {
-    success: true,
-    refundId: `REF-${Math.floor(100000 + Math.random() * 900000)}`,
+    success: false,
     transactionId: parsed.transactionId,
     amount: parsed.amount,
-    currency: 'INR',
-    status: 'submitted',
-    estimatedSettlement: '24-48 hours to original payment method',
-    message: `Refund of ₹${parsed.amount} successfully scheduled for transaction ${parsed.transactionId}`,
+    status: 'integration_not_configured',
+    message: 'Refunds require a live company-approved payment integration or human approval.',
   };
 }
 
 export async function lookupCustomer(customerId: string) {
   const parsed = CustomerLookupSchema.parse({ customerId });
   return {
-    success: true,
+    success: false,
     customerId: parsed.customerId,
-    name: 'Rahul Simhadri',
-    tier: 'Gold Support',
-    linkedTransactions: ['TXN-8392', 'TXN-7104'],
+    status: 'integration_not_configured',
+    message: 'No live customer lookup integration is configured for this company.',
   };
 }

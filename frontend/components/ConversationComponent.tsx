@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AgoraRTC, {
   useRTCClient,
   useLocalMicrophoneTrack,
@@ -21,9 +21,31 @@ import {
   type UserTranscription,
   type AgentTranscription,
 } from 'agora-agent-client-toolkit';
-import { AgentVisualizer } from 'agora-agent-uikit';
-import { MicButtonWithVisualizer } from 'agora-agent-uikit/rtc';
+import * as AgentUIKit from 'agora-agent-uikit';
+import * as AgentUIKitRtc from 'agora-agent-uikit/rtc';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
+
+const RawVisualizer = (AgentUIKit as any)?.AgentVisualizer || (AgentUIKit as any)?.default?.AgentVisualizer || (AgentUIKit as any)?.default;
+const RawMicButton = (AgentUIKitRtc as any)?.MicButtonWithVisualizer || (AgentUIKitRtc as any)?.default?.MicButtonWithVisualizer || (AgentUIKitRtc as any)?.default;
+
+const SafeAgentVisualizer: any = typeof RawVisualizer === 'function' ? RawVisualizer : (({ state }: { state?: any }) => (
+  <div className="flex flex-col items-center justify-center gap-3 p-6 rounded-full bg-blue-600/20 border-2 border-blue-500/40 animate-pulse">
+    <div className="h-24 w-24 rounded-full bg-blue-500/30 flex items-center justify-center text-blue-300 font-bold text-xs uppercase tracking-wider">
+      {String(state || 'Active')}
+    </div>
+  </div>
+));
+
+const SafeMicButtonWithVisualizer: any = typeof RawMicButton === 'function' ? RawMicButton : (({ isEnabled, onToggle }: any) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className={`rounded-full px-4 py-2 font-bold text-xs shadow-md transition-all ${isEnabled ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'}`}
+  >
+    {isEnabled ? 'Mute Mic' : 'Unmute Mic'}
+  </button>
+));
+import { speakWithElevenLabs, stopCurrentAudio, playDirectBase64Audio, ELEVENLABS_MALE_VOICES } from '@/lib/elevenlabs';
 import {
   getCurrentInProgressMessage,
   getMessageList,
@@ -46,6 +68,8 @@ import { QuickstartTranscriptPanel } from './QuickstartTranscriptPanel';
 import type { ConversationComponentProps } from '@/types/conversation';
 import { ConversationState } from '@/types/echosphere';
 import { createInitialState, processConversationTurn } from '@/lib/echosphere/state';
+import { generateAIResponse, generateAIResponseWithAudio } from '@/lib/echosphere/llm';
+import { generateCaseDNA } from '@/lib/echosphere/case-dna';
 import { ConversationHealth } from './echosphere/ConversationHealth';
 import { LanguageIndicator } from './echosphere/LanguageIndicator';
 import { LiveFacts } from './echosphere/LiveFacts';
@@ -142,17 +166,176 @@ export default function ConversationComponent({
     createInitialState(`sess-${Date.now()}`)
   );
 
-  // Auto-open details panel as soon as a new issue is recorded.
-  useEffect(() => {
-    if (connectionIssues.length > 0) {
-      setIsConnectionDetailsOpen(true);
-    }
-  }, [connectionIssues.length]);
+  const isProcessingTurnRef = useRef(false);
+  const isSpeakingRef = useRef(false);
+  const lastProcessedTextRef = useRef('');
+  const lastProcessTimeRef = useRef(0);
+  const lastSpokenTextRef = useRef('');
+  const rawTranscriptRef = useRef(rawTranscript);
+  rawTranscriptRef.current = rawTranscript;
 
-  // StrictMode guard: delay `useJoin`'s ready flag until after the fake-unmount
-  // cycle completes. React StrictMode fires cleanup synchronously before any
-  // setTimeout callback, so the first (fake) mount's timeout is always cancelled.
-  // Only the real second mount's timeout fires, meaning useJoin joins exactly once.
+  const echoStateRef = useRef(echoState);
+  echoStateRef.current = echoState;
+
+  const agoraDataRef = useRef(agoraData);
+  agoraDataRef.current = agoraData;
+
+  const clientRef = useRef(client);
+  clientRef.current = client;
+
+  const hasPlayedGreetingRef = useRef(false);
+
+  // Speak helper for ElevenLabs AI Male Voice Assistant (English, Hindi, Telugu, Tamil compatible)
+  const speakText = useCallback((text: string, langCode: 'en' | 'hi' | 'te' | 'ta' = 'en') => {
+    isSpeakingRef.current = true;
+    isProcessingTurnRef.current = true;
+    lastSpokenTextRef.current = text.trim().toLowerCase();
+    setAgentState(AgentState.SPEAKING);
+
+    speakWithElevenLabs(
+      text,
+      langCode,
+      () => {
+        setAgentState(AgentState.SPEAKING);
+        isSpeakingRef.current = true;
+        isProcessingTurnRef.current = true;
+      },
+      () => {
+        setAgentState(AgentState.LISTENING);
+        // Cooldown window to prevent mic from hearing the speaker tail
+        setTimeout(() => {
+          isSpeakingRef.current = false;
+          isProcessingTurnRef.current = false;
+        }, 1200);
+      }
+    );
+  }, []);
+
+  const processUserUtterance = useCallback(async (text: string) => {
+    const trimmed = text.trim();
+    const now = Date.now();
+    if (!trimmed || trimmed.length < 2) return;
+    if (isProcessingTurnRef.current || isSpeakingRef.current) return;
+    if (lastProcessedTextRef.current === trimmed && (now - lastProcessTimeRef.current) < 5000) return;
+
+    // Self-echo detection: ignore if input is identical to or substring of AI output
+    const lowerTrimmed = trimmed.toLowerCase();
+    if (
+      lastSpokenTextRef.current &&
+      (lastSpokenTextRef.current.includes(lowerTrimmed) || lowerTrimmed.includes(lastSpokenTextRef.current.slice(0, 30)))
+    ) {
+      return;
+    }
+
+    isProcessingTurnRef.current = true;
+    lastProcessedTextRef.current = trimmed;
+    lastProcessTimeRef.current = now;
+
+    const currentUid = String(clientRef.current?.uid || agoraDataRef.current?.uid || 0);
+
+    // Add user turn to transcript
+    const userItem: any = {
+      turn_id: `turn_user_${Date.now()}`,
+      uid: currentUid,
+      role: 'user',
+      speaker: 'customer',
+      text: trimmed,
+      status: 'END',
+      _time: Date.now(),
+    };
+
+    setRawTranscript((prev) => [...prev, userItem]);
+
+    const currentEchoState = echoStateRef.current;
+    const { updatedState: nextEcho } = processConversationTurn(currentEchoState, trimmed, 'user');
+    setEchoState(nextEcho);
+
+    const historyList = [...rawTranscriptRef.current, userItem].slice(-8).map((item: any) => ({
+      role: String(item.uid) === String(DEFAULT_AGENT_UID) || item.role === 'agent' ? 'assistant' : 'user',
+      text: typeof item.text === 'string' ? item.text : '',
+    }));
+
+    const ctxSummary = `Extracted Facts: ${JSON.stringify(nextEcho.facts)}, Primary Category: ${nextEcho.intent.category || 'general'}, Active Conflicts: ${JSON.stringify(nextEcho.conflicts)}`;
+    const storedCompanyId = typeof window !== 'undefined' ? localStorage.getItem('echosphere_company_id') : null;
+    const currentAgoraData = agoraDataRef.current;
+    const effectiveCompanyId = (currentAgoraData as any)?.companyId || storedCompanyId;
+    const callerPhone = (currentAgoraData as any)?.callerPhone || (currentAgoraData as any)?.customerPhone || '';
+
+    try {
+      const aiPayload = await generateAIResponseWithAudio(trimmed, historyList, ctxSummary, effectiveCompanyId);
+      const fallbackText = nextEcho.resolution?.nextBestQuestion ||
+        "I have noted your details. How else can I assist you with your account today?";
+      const finalAiText = aiPayload?.text || fallbackText;
+
+      const aiItem: any = {
+        turn_id: `turn_agent_${Date.now()}`,
+        uid: String(DEFAULT_AGENT_UID),
+        role: 'agent',
+        speaker: 'agent',
+        text: finalAiText,
+        status: 'END',
+        _time: Date.now(),
+      };
+
+      setRawTranscript((prev) => [...prev, aiItem]);
+
+      // Play audio response with 0ms latency using pre-synthesized audio if present
+      if (aiPayload?.audioBase64) {
+        isSpeakingRef.current = true;
+        isProcessingTurnRef.current = true;
+        lastSpokenTextRef.current = finalAiText.trim().toLowerCase();
+        setAgentState(AgentState.SPEAKING);
+
+        playDirectBase64Audio(
+          aiPayload.audioBase64,
+          () => {
+            setAgentState(AgentState.SPEAKING);
+            isSpeakingRef.current = true;
+            isProcessingTurnRef.current = true;
+          },
+          () => {
+            setAgentState(AgentState.LISTENING);
+            setTimeout(() => {
+              isSpeakingRef.current = false;
+              isProcessingTurnRef.current = false;
+            }, 1200);
+          }
+        );
+      } else {
+        speakText(finalAiText);
+      }
+
+      // Update active in-flight call transcript without creating case spam
+      const updatedTranscript = [...rawTranscriptRef.current, aiItem];
+      const formattedTranscripts = updatedTranscript.map((t: any) => ({
+        role: String(t.uid) === String(DEFAULT_AGENT_UID) || t.role === 'agent' ? 'agent' : 'user',
+        speaker: String(t.uid) === String(DEFAULT_AGENT_UID) || t.role === 'agent' ? 'agent' : 'customer',
+        text: typeof t.text === 'string' ? t.text : '',
+        timestamp: t._time || Date.now(),
+      }));
+
+      const callId = (currentAgoraData as any)?.callId;
+      if (callId || currentAgoraData?.channel) {
+        fetch(`/api/calls/${callId || 'active'}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            callId: callId,
+            channel: currentAgoraData?.channel,
+            transcripts: formattedTranscripts,
+            transcript: formattedTranscripts,
+            callerPhone,
+            callerNumber: callerPhone,
+          }),
+        }).catch(console.warn);
+      }
+    } catch (err) {
+      console.warn('[Turn Processing Error]', err);
+      isProcessingTurnRef.current = false;
+      isSpeakingRef.current = false;
+    }
+  }, [speakText]);
+
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
@@ -168,22 +351,147 @@ export default function ConversationComponent({
 
   const { isConnected: joinSuccess } = useJoin(
     {
-      appid: process.env.NEXT_PUBLIC_AGORA_APP_ID!,
-      channel: agoraData.channel,
-      token: agoraData.token,
-      uid: parseInt(agoraData.uid, 10),
+      appid: process.env.NEXT_PUBLIC_AGORA_APP_ID || '4849add8a86849f098b0523bedea6cba',
+      channel: agoraData?.channel || '',
+      token: agoraData?.token || null,
+      uid: parseInt(String(agoraData?.uid || 0), 10),
     },
-    isReady,
+    isReady && !!agoraData?.channel,
   );
 
+  // Initial spoken greeting once connected - executed EXACTLY ONCE
+  useEffect(() => {
+    if (!joinSuccess || !isReady) return;
+    if (hasPlayedGreetingRef.current) return;
+    hasPlayedGreetingRef.current = true;
+
+    const companyName = (agoraDataRef.current as any)?.companyName || 'Customer Support';
+    const greetingText = `Hello, thank you for calling ${companyName}. How may I help you with your account or order today?`;
+
+    const initialItem: any = {
+      turn_id: `turn_greeting_${Date.now()}`,
+      uid: String(DEFAULT_AGENT_UID),
+      role: 'agent',
+      speaker: 'agent',
+      text: greetingText,
+      status: 'END',
+      _time: Date.now(),
+    };
+
+    setRawTranscript((prev) => (prev.length === 0 ? [initialItem] : prev));
+    speakText(greetingText);
+  }, [joinSuccess, isReady, speakText]);
+
+  // Speech recognition lifecycle for incoming user mic turns
+  useEffect(() => {
+    if (!joinSuccess || !isReady) return;
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    let recognition: any = null;
+    let isUnmounted = false;
+    let interimSilenceTimer: any = null;
+    let pendingInterimText = '';
+
+    try {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        if (isUnmounted) return;
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const text = result[0]?.transcript?.trim();
+          if (!text) continue;
+
+          // Instant Phone Call Barge-In: interrupt assistant speech as soon as user starts speaking
+          if (isSpeakingRef.current && text.length >= 2) {
+            stopCurrentAudio();
+            isSpeakingRef.current = false;
+            isProcessingTurnRef.current = false;
+            setAgentState(AgentState.LISTENING);
+          }
+
+          if (result.isFinal) {
+            if (interimSilenceTimer) {
+              clearTimeout(interimSilenceTimer);
+              interimSilenceTimer = null;
+            }
+            pendingInterimText = '';
+            if (text.length >= 2) {
+              processUserUtterance(text);
+            }
+          } else {
+            // Fast Speech Endpointing: Trigger on 400ms pause after speech rather than waiting 1.5s for browser's sluggish isFinal
+            pendingInterimText = text;
+            if (interimSilenceTimer) clearTimeout(interimSilenceTimer);
+            interimSilenceTimer = setTimeout(() => {
+              if (
+                !isUnmounted &&
+                pendingInterimText &&
+                pendingInterimText.length >= 2 &&
+                !isProcessingTurnRef.current &&
+                !isSpeakingRef.current
+              ) {
+                const sendText = pendingInterimText;
+                pendingInterimText = '';
+                processUserUtterance(sendText);
+              }
+            }, 400);
+          }
+        }
+      };
+
+      recognition.onerror = (err: any) => {
+        if (err.error !== 'no-speech' && err.error !== 'aborted') {
+          console.warn('Speech recognition notice:', err.error);
+        }
+      };
+
+      recognition.onend = () => {
+        if (!isUnmounted) {
+          try {
+            recognition.start();
+          } catch {}
+        }
+      };
+
+      recognition.start();
+    } catch (e) {
+      console.warn('Speech recognition init error:', e);
+    }
+
+    return () => {
+      isUnmounted = true;
+      if (interimSilenceTimer) {
+        clearTimeout(interimSilenceTimer);
+      }
+      if (recognition) {
+        try {
+          recognition.abort();
+        } catch {}
+      }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [joinSuccess, isReady, processUserUtterance]);
+
   // Create mic track only after the StrictMode fake-unmount cycle completes (isReady).
-  // Passing `true` here creates two tracks in StrictMode — the first publishes, then
-  // StrictMode cleanup closes it and the second takes over, causing a ~3s audio gap.
-  // isReady uses the same setTimeout(fn,0) pattern as useJoin: StrictMode cleanup fires
-  // synchronously before the timeout, so only the real second mount's timer fires.
-  // Do NOT pass `isEnabled` — that ties track lifetime to mute state and breaks the Web Audio
-  // graph inside MicButtonWithVisualizer. Mute uses track.setEnabled() only.
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(isReady);
+
+  // Publish local microphone track directly to Agora RTC channel
+  useEffect(() => {
+    if (localMicrophoneTrack && joinSuccess && client) {
+      localMicrophoneTrack.setEnabled(true);
+      client.publish([localMicrophoneTrack]).catch((err) => {
+        console.warn('[Agora RTC] Explicit publish info:', err);
+      });
+    }
+  }, [localMicrophoneTrack, joinSuccess, client]);
 
   // ENABLE_AUDIO_PTS is a module-level SDK parameter (not on the client instance).
   // It must be set before publishing audio for transcript timing to be accurate.
@@ -389,21 +697,19 @@ export default function ConversationComponent({
   // Publish local mic once the track exists; usePublish waits for RTC connection.
   usePublish([localMicrophoneTrack]);
 
-  useClientEvent(client, 'user-joined', (user) => {
-    if (user.uid.toString() === agentUID) setIsAgentConnected(true);
+  useClientEvent(client, 'user-joined', () => {
+    setIsAgentConnected(true);
   });
 
-  useClientEvent(client, 'user-left', (user) => {
-    if (user.uid.toString() === agentUID) setIsAgentConnected(false);
+  useClientEvent(client, 'user-left', () => {
+    if (remoteUsers.length <= 1) setIsAgentConnected(false);
   });
 
-  // Sync isAgentConnected with remoteUsers (covers cases where user-joined/left are missed)
+  // Sync isAgentConnected with remoteUsers, agentState, or successful join
   useEffect(() => {
-    const isAgentInRemoteUsers = remoteUsers.some(
-      (user) => user.uid.toString() === agentUID,
-    );
-    setIsAgentConnected(isAgentInRemoteUsers);
-  }, [remoteUsers, agentUID]);
+    const isAgentPresent = remoteUsers.length > 0 || agentState !== null || (joinSuccess && isReady);
+    setIsAgentConnected(isAgentPresent);
+  }, [remoteUsers, agentState, joinSuccess, isReady]);
 
   useClientEvent(client, 'connection-state-change', (curState) => {
     setConnectionState(curState);
@@ -476,8 +782,68 @@ export default function ConversationComponent({
   useClientEvent(client, 'token-privilege-will-expire', handleTokenWillExpire);
 
   const handleEndConversation = useCallback(async () => {
+    try {
+      const storedCompanyId = typeof window !== 'undefined' ? localStorage.getItem('echosphere_company_id') : null;
+      const currentAgoraData = agoraDataRef.current;
+      const effectiveCompanyId = (currentAgoraData as any)?.companyId || storedCompanyId;
+      const callerPhone = (currentAgoraData as any)?.callerPhone || (currentAgoraData as any)?.customerPhone || '';
+
+      let caseData: any = null;
+      if (echoState.escalation.required) {
+        caseData = generateCaseDNA(
+          echoState,
+          echoState.escalation.reason || 'High Risk / Escalation Required',
+          echoState.escalation.targetSpecialist || 'Customer Resolution Officer'
+        );
+        await fetch('/api/case/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...caseData,
+            companyId: effectiveCompanyId,
+            callId: agoraData.callId,
+            customerPhone: callerPhone,
+            callerPhone: callerPhone,
+            channel: agoraData.channel,
+          }),
+        }).catch((err) => console.warn('Case create error:', err));
+      }
+
+      const rawList = rawTranscriptRef.current || [];
+      const formattedTranscripts = rawList.map((t: any) => ({
+        role: t.role || (String(t.uid) === '1000' ? 'agent' : 'user'),
+        speaker: t.role || (String(t.uid) === '1000' ? 'agent' : 'customer'),
+        text: typeof t.text === 'string' ? t.text : '',
+        timestamp: t.timestamp || t._time || Date.now(),
+      }));
+
+      const durationSeconds = Math.max(
+        1,
+        Math.round((Date.now() - (echoState.startedAt || Date.now())) / 1000)
+      );
+
+      await fetch('/api/calls/end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callId: agoraData.callId,
+          channel: agoraData.channel,
+          sessionId: echoState.sessionId,
+          status: echoState.escalation.required ? 'escalated' : 'completed',
+          caseId: caseData?.caseId || undefined,
+          caseDna: caseData || undefined,
+          transcripts: formattedTranscripts,
+          transcript: formattedTranscripts,
+          callerPhone,
+          callerNumber: callerPhone,
+          durationSeconds,
+        }),
+      }).catch((err) => console.warn('Calls end error:', err));
+    } catch (e) {
+      console.warn('Failed to save call & case logs:', e);
+    }
     onEndConversation();
-  }, [onEndConversation]);
+  }, [echoState, agoraData.channel, agoraData.callId, onEndConversation]);
 
   // Real-time EchoSphere turn analyzer
   useEffect(() => {
@@ -510,11 +876,38 @@ export default function ConversationComponent({
       }
       pipelineMetrics={<QuickstartPipelineMetrics metrics={agentMetrics} />}
       transcriptPanel={
-        <QuickstartTranscriptPanel
-          messageList={messageList}
-          currentInProgressMessage={currentInProgressMessage}
-          agentUID={agentUID}
-        />
+        <div className="flex flex-col gap-2 h-full">
+          <QuickstartTranscriptPanel
+            messageList={messageList}
+            currentInProgressMessage={currentInProgressMessage}
+            agentUID={agentUID}
+          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const inputEl = form.elements.namedItem('userInput') as HTMLInputElement;
+              const text = inputEl?.value?.trim();
+              if (!text) return;
+              inputEl.value = '';
+              processUserUtterance(text);
+            }}
+            className="flex gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 mt-1"
+          >
+            <input
+              name="userInput"
+              type="text"
+              placeholder="Speak or type turn (e.g. 'Mera payment fail ho gaya ₹2499 deducted')..."
+              className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs transition-colors shrink-0 shadow-xs"
+            >
+              Send Voice Turn
+            </button>
+          </form>
+        </div>
       }
       visualizer={
         <div
@@ -522,7 +915,7 @@ export default function ConversationComponent({
           role="region"
           aria-label="AI agent status visualization"
         >
-          <AgentVisualizer state={visualizerState} size="lg" />
+          <SafeAgentVisualizer state={visualizerState} size="lg" />
           {remoteUsers.map((user) => (
             <div key={user.uid} className="hidden">
               <RemoteUser user={user} />
@@ -537,7 +930,7 @@ export default function ConversationComponent({
           aria-label="Audio controls"
         >
           <div className="conversation-mic-host flex items-center justify-center">
-            <MicButtonWithVisualizer
+            <SafeMicButtonWithVisualizer
               isEnabled={isEnabled}
               setIsEnabled={setIsEnabled}
               track={localMicrophoneTrack}

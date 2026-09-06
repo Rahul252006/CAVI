@@ -27,11 +27,22 @@ export function CaseQueue({ cases, selectedCaseId, onSelectCase }: CaseQueueProp
           </div>
         ) : (
           cases.map(c => {
-            const isSelected = c.caseId === selectedCaseId;
+            const caseIdText = c.caseId || (c as any).id || 'CASE';
+            const isSelected = caseIdText === selectedCaseId;
+            const priority = (c.escalation?.priority || (c as any).priority || 'medium').toLowerCase();
+            const languages: string[] =
+              (c.language?.languagesUsed && c.language.languagesUsed.length > 0)
+                ? c.language.languagesUsed
+                : Array.isArray((c as any).detectedLanguages) && (c as any).detectedLanguages.length > 0
+                ? (c as any).detectedLanguages
+                : [(c.language?.primary || (c as any).primaryLanguage || 'English')];
+            const intentText = c.intent || (c as any).customerGoal || (c as any).goal || 'Customer Support Inquiry';
+            const healthVal = c.healthScore ?? 85;
+
             return (
               <button
-                key={c.caseId}
-                onClick={() => onSelectCase(c.caseId)}
+                key={caseIdText}
+                onClick={() => onSelectCase(caseIdText)}
                 className={`w-full text-left rounded-lg p-3 border transition-all text-xs ${
                   isSelected
                     ? 'border-primary bg-primary/10 shadow-sm'
@@ -39,24 +50,24 @@ export function CaseQueue({ cases, selectedCaseId, onSelectCase }: CaseQueueProp
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-bold text-foreground font-mono">{c.caseId}</span>
+                  <span className="font-bold text-foreground font-mono">{caseIdText}</span>
                   <span
                     className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
-                      c.escalation.priority === 'critical'
+                      priority === 'critical' || priority === 'urgent'
                         ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                        : c.escalation.priority === 'high'
+                        : priority === 'high'
                           ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                           : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                     }`}
                   >
-                    {c.escalation.priority}
+                    {priority}
                   </span>
                 </div>
 
-                <div className="mt-1 font-semibold text-foreground truncate">{c.intent}</div>
+                <div className="mt-1 font-semibold text-foreground truncate">{intentText}</div>
                 <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>{c.language.languagesUsed.map(l => l.toUpperCase()).join(' + ')}</span>
-                  <span className="font-medium text-primary">Health: {c.healthScore}</span>
+                  <span>{languages.map(l => String(l).toUpperCase()).join(' + ')}</span>
+                  <span className="font-medium text-primary">Health: {healthVal}</span>
                 </div>
               </button>
             );

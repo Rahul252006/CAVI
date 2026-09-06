@@ -1,13 +1,25 @@
 export interface CompanyRecord {
   id: string;
   name: string;
+  legalName?: string;
   industry: string;
+  website?: string;
+  description?: string;
+  tagline?: string;
+  country?: string;
+  city?: string;
+  timezone?: string;
   supportPhone: string;
+  adminMobile?: string;
+  phoneType?: string;
+  businessHours?: string;
   adminEmail: string;
   adminName: string;
   createdAt: string;
-  status: 'active' | 'suspended' | 'trial';
+  status: 'active' | 'suspended' | 'trial' | 'pending_onboarding';
   plan: 'starter' | 'growth' | 'enterprise';
+  isActive?: boolean;
+  pricePerMinute?: number;
 }
 
 export interface CompanyAdmin {
@@ -23,7 +35,7 @@ export interface CompanyAdmin {
 export interface BrainConfig {
   companyId: string;
   agentName: string;
-  tone: 'empathetic' | 'professional' | 'urgent' | 'direct';
+  tone: string;
   primaryLanguage: string;
   allowCodeSwitching: boolean;
   allowedActions: string[];
@@ -39,24 +51,47 @@ export interface KnowledgeDoc {
   title: string;
   content: string;
   type: 'faq' | 'policy' | 'sop' | 'product_info';
+  category?: string;
+  aiGenerated?: boolean;
+  source?: 'manual' | 'ai_generated';
+  aiReasoning?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface KnowledgeGapRequest {
+  id: string;
+  companyId: string;
+  problemSummary: string;
+  suggestedCategory: 'policy' | 'sop' | 'faq' | 'product_info';
+  recommendedAction: string;
+  callerPhone?: string;
+  createdAt: string;
+  status: 'pending' | 'resolved';
 }
 
 export interface HumanAgent {
   id: string;
   companyId: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  passwordHash: string;
+  phone?: string;
+  mobile?: string;
+  jobTitle?: string;
+  passwordHash?: string;
   role: 'support_officer' | 'team_lead' | 'specialist';
   department: string;
-  specialization: string[];
-  languages: string[];
-  status: 'available' | 'busy' | 'offline';
+  specialization?: string[];
+  languages?: string[];
+  status: 'available' | 'online' | 'busy' | 'offline' | 'removed';
+  removalReason?: string;
   currentCallId?: string;
+  activeCallId?: string | null;
   avatarUrl?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CallRecord {
@@ -109,12 +144,22 @@ export interface CaseDNA {
   sentimentTrajectory: Array<{ score: number; timestamp: string }>;
   frustrationSignals: string[];
   healthScore: number;
+  riskScore?: number;
+  confidence?: number;
+  riskReasons?: string[];
   priority: 'low' | 'medium' | 'high' | 'urgent';
   escalationReason?: string;
   summary: string;
   nextBestAction: string;
+  assignmentStatus?: 'assigned' | 'unassigned_no_available_officer';
+  adminActionRequired?: boolean;
+  adminNotification?: string;
   suggestedDepartment?: string;
   suggestedOfficerId?: string;
+  assignedOfficerId?: string;
+  assignedOfficerName?: string;
+  transcripts?: any[];
+  transcriptSnippet?: any[];
   createdAt: string;
   updatedAt: string;
 }

@@ -36,36 +36,55 @@ export default function AgentDashboardPage() {
       const storedAgentId = typeof window !== 'undefined' ? localStorage.getItem('echosphere_agent_id') : null;
       const storedCompanyId = typeof window !== 'undefined' ? localStorage.getItem('echosphere_company_id') : null;
 
-      if (!storedAgentId) {
-        setIsLoading(false);
-        return;
-      }
-
       const [agentRes, caseRes, compRes] = await Promise.all([
         fetch(`/api/agent/register?companyId=${storedCompanyId || ''}`),
-        fetch(`/api/case/list?companyId=${storedCompanyId || ''}`),
+        fetch(`/api/case/list${storedCompanyId ? `?companyId=${storedCompanyId}` : ''}`),
         fetch(`/api/admin/overview?companyId=${storedCompanyId || ''}`),
       ]);
 
       if (agentRes.ok) {
         const agentData = await agentRes.json();
-        const found = agentData.agents.find((a: HumanAgent) => a.id === storedAgentId);
+        const agentList: HumanAgent[] = Array.isArray(agentData?.agents)
+          ? agentData.agents
+          : Array.isArray(agentData?.officers)
+          ? agentData.officers
+          : [];
+
+        const found = storedAgentId ? agentList.find((a: HumanAgent) => a.id === storedAgentId) : null;
         if (found) {
           setAgent(found);
-          setAgentStatus(found.status);
+          const mappedStatus = (found.status === 'available' || found.status === 'online') ? 'online' : (found.status === 'busy' ? 'busy' : 'offline');
+          setAgentStatus(mappedStatus);
         }
       }
 
       if (compRes.ok) {
         const compData = await compRes.json();
-        if (compData.selectedCompany) setCompany(compData.selectedCompany);
+        if (compData?.selectedCompany) setCompany(compData.selectedCompany);
+        else if (compData?.company) setCompany(compData.company);
       }
 
       if (caseRes.ok) {
         const caseData = await caseRes.json();
-        setCases(caseData.cases || []);
-        if (caseData.cases?.length > 0 && !selectedCaseId) {
-          setSelectedCaseId(caseData.cases[0].caseId);
+        const fetchedCases = Array.isArray(caseData?.cases) ? caseData.cases : [];
+        // Only show cases that are genuinely escalated to human specialist
+        const activeEscalatedCases = fetchedCases.filter((c: any) => {
+          const isEscalated = c.escalation?.required === true || (c.status as string) === 'escalated' || (c.status as string) === 'assigned';
+          if (!isEscalated) return false;
+          if (storedAgentId) {
+            return !c.assignedOfficerId || c.assignedOfficerId === storedAgentId || c.suggestedOfficerId === storedAgentId;
+          }
+          return true;
+        });
+
+        setCases(activeEscalatedCases);
+        if (activeEscalatedCases.length > 0) {
+          setSelectedCaseId((prev) => {
+            if (prev && activeEscalatedCases.some((c: any) => (c.caseId || c.id) === prev)) return prev;
+            return activeEscalatedCases[0].caseId || (activeEscalatedCases[0] as any).id;
+          });
+        } else {
+          setSelectedCaseId(null);
         }
       }
     } catch (e) {
@@ -73,7 +92,7 @@ export default function AgentDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedCaseId]);
+  }, []);
 
   useEffect(() => {
     fetchAgentAndCases();
@@ -113,7 +132,7 @@ export default function AgentDashboardPage() {
           caseId,
           agentId: agent?.id,
           companyId: agent?.companyId,
-          companySupportPhone: company?.supportPhone || '+91 (800) 555-FAST',
+          companySupportPhone: company?.supportPhone,
         }),
       });
 
@@ -157,7 +176,7 @@ export default function AgentDashboardPage() {
           </p>
           <Link
             href="/agent/login"
-            className="block w-full rounded-xl btn-primary-gradient py-3 font-bold text-white text-xs shadow-md transition-all"
+            className="block w-full rounded-xl bg-blue-600 hover:bg-blue-500 py-3 font-bold text-white text-xs shadow-md transition-all"
           >
             Sign In to Support Desk →
           </Link>
@@ -166,15 +185,34 @@ export default function AgentDashboardPage() {
     );
   }
 
-  const selectedCase = cases.find(c => c.caseId === selectedCaseId) || cases[0];
-  const callerPhone = '+91 98765 43210';
+  const selectedCase = cases.find((c) => (c.caseId || (c as any).id) === selectedCaseId) || cases[0];
+  const callerPhone = (selectedCase as any)?.customerPhone || (selectedCase as any)?.callerPhone || 'Phone not captured';
+
+  // Helper to safely format facts
+  const normalizedFacts = selectedCase
+    ? Array.isArray(selectedCase.facts)
+      ? selectedCase.facts
+      : (selectedCase as any).confirmedFacts
+      ? Object.entries((selectedCase as any).confirmedFacts).map(([k, v]) => ({ key: k, value: String(v) }))
+      : []
+    : [];
+
+  // Helper to safely format conflicts
+  const normalizedConflicts = selectedCase
+    ? Array.isArray(selectedCase.conflicts)
+      ? selectedCase.conflicts
+      : []
+    : [];
+
+  const casePriority = selectedCase?.escalation?.priority || (selectedCase as any)?.priority || 'high';
+  const caseSpecialist = selectedCase?.escalation?.targetSpecialist || (selectedCase as any)?.suggestedDepartment || 'Payments Specialist';
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-50">
       {/* Top Header */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30 px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg btn-primary-gradient text-white font-bold text-xs shadow-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm">
             <Headphones className="h-4 w-4" />
           </div>
           <div>
@@ -187,7 +225,7 @@ export default function AgentDashboardPage() {
               </span>
             </div>
             <div className="text-[11px] text-slate-500">
-              Hotline: <span className="font-mono font-semibold text-slate-700">{company?.supportPhone}</span>
+              Hotline: <span className="font-mono font-semibold text-slate-700">{company?.supportPhone || 'Not configured'}</span>
             </div>
           </div>
         </div>
@@ -294,7 +332,8 @@ export default function AgentDashboardPage() {
 
             <div className="text-[11px] space-y-1 text-slate-600">
               <div>Email: <span className="text-slate-900 font-mono font-medium">{agent.email}</span></div>
-              <div>Company: <span className="text-slate-900 font-semibold">{company?.name || 'PayFast'}</span></div>
+              <div>Phone: <span className="text-slate-900 font-mono font-bold">{agent.phone || agent.mobile || 'Not captured'}</span></div>
+              <div>Company: <span className="text-slate-900 font-semibold">{company?.name || 'Company'}</span></div>
             </div>
           </div>
 
@@ -311,32 +350,41 @@ export default function AgentDashboardPage() {
             </div>
 
             <div className="space-y-2 max-h-[450px] overflow-y-auto pr-1">
-              {cases.map((c) => {
-                const isSelected = c.caseId === selectedCaseId;
-                return (
-                  <button
-                    key={c.caseId}
-                    onClick={() => setSelectedCaseId(c.caseId)}
-                    className={`w-full text-left rounded-lg p-3 border transition-all text-xs ${
-                      isSelected
-                        ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600'
-                        : 'border-slate-200 bg-slate-50 hover:border-blue-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold font-mono text-slate-900">{c.caseId}</span>
-                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold uppercase text-blue-700 border border-blue-200">
-                        {c.escalation.priority}
-                      </span>
-                    </div>
-                    <div className="mt-1 font-semibold text-slate-900 truncate">{c.intent}</div>
-                    <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
-                      <span className="font-mono text-slate-900">{callerPhone}</span>
-                      <span className="text-blue-600 font-semibold">Health: {c.healthScore}/100</span>
-                    </div>
-                  </button>
-                );
-              })}
+              {cases.length === 0 ? (
+                <div className="py-8 text-center text-xs text-slate-500">
+                  No escalated cases. All live voice calls are healthy.
+                </div>
+              ) : (
+                cases.map((c) => {
+                  const idKey = c.caseId || (c as any).id;
+                  const isSelected = idKey === selectedCaseId;
+                  const p = c.escalation?.priority || (c as any).priority || 'high';
+                  const phoneNum = (c as any).customerPhone || (c as any).callerPhone || 'Unknown caller';
+                  return (
+                    <button
+                      key={idKey}
+                      onClick={() => setSelectedCaseId(idKey)}
+                      className={`w-full text-left rounded-lg p-3 border transition-all text-xs ${
+                        isSelected
+                          ? 'border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600'
+                          : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold font-mono text-slate-900">{idKey}</span>
+                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold uppercase text-blue-700 border border-blue-200">
+                          {p}
+                        </span>
+                      </div>
+                      <div className="mt-1 font-semibold text-slate-900 truncate">{c.intent || (c as any).customerGoal || 'Customer Support Escalation'}</div>
+                      <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+                        <span className="font-mono text-slate-900">{phoneNum}</span>
+                        <span className="text-blue-600 font-semibold">Health: {c.healthScore || 85}/100</span>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -349,22 +397,22 @@ export default function AgentDashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-slate-900 font-mono">{selectedCase.caseId}</span>
+                    <span className="text-lg font-bold text-slate-900 font-mono">{selectedCase.caseId || (selectedCase as any).id}</span>
                     <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-200">
-                      {selectedCase.escalation.targetSpecialist}
+                      {caseSpecialist}
                     </span>
                   </div>
                   <div className="mt-1 flex items-center gap-3 text-sm">
                     <span className="font-bold text-slate-900 font-mono">Caller: {callerPhone}</span>
                     <span className="text-slate-400">•</span>
-                    <span className="text-slate-600 font-medium">{selectedCase.customerGoal}</span>
+                    <span className="text-slate-600 font-medium">{selectedCase.customerGoal || selectedCase.intent || 'Order & Payment Support'}</span>
                   </div>
                 </div>
 
                 {/* Direct Outbound Calling CTA */}
                 <button
-                  onClick={() => handleOutboundCall(callerPhone, selectedCase.caseId)}
-                  className="inline-flex items-center gap-2 rounded-xl btn-primary-gradient px-5 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all"
+                  onClick={() => handleOutboundCall(callerPhone, selectedCase.caseId || (selectedCase as any).id)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all"
                 >
                   <PhoneCall className="h-4 w-4" />
                   Call Customer ({callerPhone})
@@ -377,7 +425,60 @@ export default function AgentDashboardPage() {
                   <Sparkles className="h-3.5 w-3.5 text-blue-600" />
                   Zero-Repeat Case Briefing
                 </div>
-                <p className="text-slate-800 leading-relaxed font-medium">{selectedCase.summary}</p>
+                <p className="text-slate-800 leading-relaxed font-medium">{selectedCase.summary || 'No case summary recorded yet.'}</p>
+              </div>
+
+              {/* Assigned Officer & Escalation Reason */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5 font-bold uppercase text-amber-800">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                    Escalation Details & Assigned Agent
+                  </div>
+                  <span className="rounded bg-amber-100 border border-amber-200 px-2 py-0.5 font-semibold text-amber-900 text-[10px]">
+                    Assigned Officer: {selectedCase.assignedOfficerName || agent.name}
+                  </span>
+                </div>
+                <div className="text-slate-800 font-semibold text-xs">
+                  Reason: <span className="font-normal">{selectedCase.escalationReason || selectedCase.escalation?.reason || 'Customer asked for human specialist escalation.'}</span>
+                </div>
+              </div>
+
+              {/* Full Escalated Chat Transcript */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="font-bold uppercase text-[10px] text-slate-500 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                    Escalated Chat & Voice Transcript ({Array.isArray(selectedCase.transcripts) ? selectedCase.transcripts.length : 0})
+                  </div>
+                </div>
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  {!Array.isArray(selectedCase.transcripts) || selectedCase.transcripts.length === 0 ? (
+                    <div className="text-slate-500 text-[11px] italic py-2">
+                      No prior turns recorded. Customer transferred live.
+                    </div>
+                  ) : (
+                    selectedCase.transcripts.map((t: any, idx: number) => {
+                      const isUser = t.role === 'user' || t.speaker === 'customer';
+                      const textStr = typeof t === 'string' ? t : (t.text || '');
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-2.5 rounded-lg text-[11px] leading-relaxed border ${
+                            isUser
+                              ? 'bg-blue-50/80 border-blue-200 text-blue-950'
+                              : 'bg-white border-slate-200 text-slate-800'
+                          }`}
+                        >
+                          <div className="font-bold uppercase text-[9px] text-slate-500 mb-0.5">
+                            {isUser ? `Customer (${callerPhone})` : 'AI Voice Agent'}
+                          </div>
+                          <div>{textStr}</div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
               {/* Confirmed Information & Conflict Radar */}
@@ -388,12 +489,16 @@ export default function AgentDashboardPage() {
                     Confirmed Information
                   </div>
                   <div className="space-y-1.5">
-                    {selectedCase.facts.map((f, i) => (
-                      <div key={i} className="flex items-center justify-between border-b border-slate-200/60 pb-1 text-[11px]">
-                        <span className="text-slate-500 uppercase">{f.key}:</span>
-                        <span className="font-semibold text-slate-900">{f.value}</span>
-                      </div>
-                    ))}
+                    {normalizedFacts.length === 0 ? (
+                      <div className="text-slate-500 text-[11px] italic">Only confirmed caller details are shown here.</div>
+                    ) : (
+                      normalizedFacts.map((f, i) => (
+                        <div key={i} className="flex items-center justify-between border-b border-slate-200/60 pb-1 text-[11px]">
+                          <span className="text-slate-500 uppercase">{f.key}:</span>
+                          <span className="font-semibold text-slate-900">{f.value}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -402,15 +507,15 @@ export default function AgentDashboardPage() {
                     <AlertTriangle className="h-3.5 w-3.5" />
                     Conflict Radar Resolution History
                   </div>
-                  {selectedCase.conflicts.length === 0 ? (
+                  {normalizedConflicts.length === 0 ? (
                     <div className="text-slate-500 text-[11px] italic py-2">No conflicting values reported.</div>
                   ) : (
                     <div className="space-y-2">
-                      {selectedCase.conflicts.map((c, i) => (
+                      {normalizedConflicts.map((c, i) => (
                         <div key={i} className="rounded border border-amber-200 bg-amber-50/60 p-2 text-[11px]">
-                          <div className="font-semibold text-amber-900">{c.field.toUpperCase()} Discrepancy:</div>
+                          <div className="font-semibold text-amber-900">{(c.field || 'Amount').toUpperCase()} Discrepancy:</div>
                           <div className="text-slate-600">
-                            Initially &apos;{c.oldValue}&apos; → Changed to &apos;{c.newValue}&apos;
+                            Initially &apos;{c.oldValue || (c as any).firstValue}&apos; → Changed to &apos;{c.newValue || (c as any).conflictingValue}&apos;
                           </div>
                           {c.resolution && <div className="text-emerald-700 font-medium mt-0.5">✓ {c.resolution}</div>}
                         </div>

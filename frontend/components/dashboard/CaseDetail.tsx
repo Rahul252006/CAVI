@@ -19,9 +19,54 @@ interface CaseDetailProps {
 export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
   const [isTakenOver, setIsTakenOver] = useState(caseData.status === 'assigned');
 
+  React.useEffect(() => {
+    setIsTakenOver(caseData.status === 'assigned');
+  }, [caseData.caseId, (caseData as any).id, caseData.status]);
+
+  const caseIdDisplay = caseData.caseId || (caseData as any).id || 'CASE';
+  const targetSpecialist =
+    caseData.escalation?.targetSpecialist || (caseData as any).suggestedDepartment || 'Support Specialist';
+  const customerGoal =
+    caseData.customerGoal || (caseData as any).goal || caseData.intent || 'Resolve customer inquiry';
+
+  const languages: string[] =
+    (caseData.language?.languagesUsed && caseData.language.languagesUsed.length > 0)
+      ? caseData.language.languagesUsed
+      : Array.isArray((caseData as any).detectedLanguages) && (caseData as any).detectedLanguages.length > 0
+      ? (caseData as any).detectedLanguages
+      : [(caseData.language?.primary || (caseData as any).primaryLanguage || 'English')];
+
+  const codeSwitching = Boolean(caseData.language?.codeSwitching || languages.length > 1);
+  const healthScore = caseData.healthScore ?? 85;
+
+  const frustrationNum =
+    typeof caseData.frustration === 'number'
+      ? caseData.frustration
+      : typeof (caseData as any).frustrationScore === 'number'
+      ? (caseData as any).frustrationScore / 100
+      : (caseData as any).frustrationSignals?.length
+      ? 0.7
+      : 0.2;
+  const frustrationPercent = Math.min(100, Math.max(0, Math.round(frustrationNum * 100)));
+
+  // Normalize facts
+  let normalizedFacts: Array<{ key: string; value: string }> = [];
+  if (Array.isArray(caseData.facts) && caseData.facts.length > 0) {
+    normalizedFacts = caseData.facts.map(f => ({ key: f.key, value: String(f.value) }));
+  } else if (caseData.confirmedFacts && typeof caseData.confirmedFacts === 'object') {
+    normalizedFacts = Object.entries(caseData.confirmedFacts).map(([k, v]) => ({
+      key: k,
+      value: typeof v === 'object' && v?.value !== undefined ? String(v.value) : String(v),
+    }));
+  }
+
+  const conflictsList = Array.isArray(caseData.conflicts) ? caseData.conflicts : [];
+  const transcriptList = Array.isArray(caseData.transcriptSnippet) ? caseData.transcriptSnippet : [];
+  const summaryText = caseData.summary || 'Customer contacted support. Voice session escalated to specialist.';
+
   const handleTakeoverClick = () => {
     setIsTakenOver(true);
-    onTakeover(caseData.caseId);
+    onTakeover(caseIdDisplay);
   };
 
   return (
@@ -30,12 +75,12 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-foreground font-mono">{caseData.caseId}</span>
+            <span className="text-lg font-bold text-foreground font-mono">{caseIdDisplay}</span>
             <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/20">
-              {caseData.escalation.targetSpecialist}
+              {targetSpecialist}
             </span>
           </div>
-          <p className="mt-1 text-sm font-semibold text-muted-foreground">{caseData.customerGoal}</p>
+          <p className="mt-1 text-sm font-semibold text-muted-foreground">{customerGoal}</p>
         </div>
 
         {/* Takeover CTA */}
@@ -67,18 +112,18 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
         <div className="rounded-lg bg-background/50 p-3 border border-border/40">
           <div className="text-[10px] font-bold uppercase text-muted-foreground">Languages Used</div>
           <div className="mt-1 font-semibold text-foreground">
-            {caseData.language.languagesUsed.map(l => l.toUpperCase()).join(' ↔ ')}{' '}
-            {caseData.language.codeSwitching && '(Code-switched)'}
+            {languages.map(l => String(l).toUpperCase()).join(' ↔ ')}{' '}
+            {codeSwitching && '(Code-switched)'}
           </div>
         </div>
         <div className="rounded-lg bg-background/50 p-3 border border-border/40">
           <div className="text-[10px] font-bold uppercase text-muted-foreground">Conversation Health</div>
-          <div className="mt-1 font-semibold text-amber-400">{caseData.healthScore} / 100 (Risk: High)</div>
+          <div className="mt-1 font-semibold text-amber-400">{healthScore} / 100 (Risk: {healthScore < 70 ? 'High' : 'Moderate'})</div>
         </div>
         <div className="rounded-lg bg-background/50 p-3 border border-border/40">
           <div className="text-[10px] font-bold uppercase text-muted-foreground">Customer Frustration</div>
           <div className="mt-1 font-semibold text-rose-400">
-            {Math.round(caseData.frustration * 100)}% (Empathetic tone required)
+            {frustrationPercent}% ({frustrationPercent > 50 ? 'Empathetic tone required' : 'Calm demeanor'})
           </div>
         </div>
       </div>
@@ -89,7 +134,7 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
           <Sparkles className="h-3.5 w-3.5" />
           Zero-Repeat AI Executive Briefing
         </div>
-        <p className="text-foreground leading-relaxed text-xs">{caseData.summary}</p>
+        <p className="text-foreground leading-relaxed text-xs">{summaryText}</p>
       </div>
 
       {/* Confirmed Details & Conflict Radar */}
@@ -101,12 +146,16 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
             Confirmed Customer Information
           </div>
           <div className="space-y-1.5">
-            {caseData.facts.map((f, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-border/20 pb-1 text-[11px]">
-                <span className="text-muted-foreground uppercase">{f.key}:</span>
-                <span className="font-semibold text-foreground">{f.value}</span>
-              </div>
-            ))}
+            {normalizedFacts.length === 0 ? (
+              <div className="text-muted-foreground text-[11px] italic py-2">No confirmed parameters recorded yet.</div>
+            ) : (
+              normalizedFacts.map((f, i) => (
+                <div key={i} className="flex items-center justify-between border-b border-border/20 pb-1 text-[11px]">
+                  <span className="text-muted-foreground uppercase">{f.key}:</span>
+                  <span className="font-semibold text-foreground">{f.value}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -116,13 +165,13 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
             <AlertTriangle className="h-3.5 w-3.5" />
             Conflict Radar & Resolved Discrepancies
           </div>
-          {caseData.conflicts.length === 0 ? (
+          {conflictsList.length === 0 ? (
             <div className="text-muted-foreground text-[11px] italic py-2">No conflicting values detected.</div>
           ) : (
             <div className="space-y-2">
-              {caseData.conflicts.map((c, i) => (
+              {conflictsList.map((c, i) => (
                 <div key={i} className="rounded border border-amber-500/30 bg-amber-500/5 p-2 text-[11px]">
-                  <div className="font-semibold text-amber-300">{c.field.toUpperCase()} Discrepancy:</div>
+                  <div className="font-semibold text-amber-300">{(c.field || 'Field').toUpperCase()} Discrepancy:</div>
                   <div className="text-muted-foreground">
                     Said &apos;{c.oldValue}&apos; then changed to &apos;{c.newValue}&apos;
                   </div>
@@ -135,14 +184,14 @@ export function CaseDetail({ caseData, onTakeover }: CaseDetailProps) {
       </div>
 
       {/* Transcript Timeline */}
-      {caseData.transcriptSnippet && caseData.transcriptSnippet.length > 0 && (
+      {transcriptList.length > 0 && (
         <div className="rounded-lg border border-border/40 bg-background/30 p-4 space-y-2">
           <div className="flex items-center gap-1.5 font-bold uppercase text-[10px] text-muted-foreground">
             <MessageSquare className="h-3.5 w-3.5" />
             Live Call Audio Transcript Context
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-            {caseData.transcriptSnippet.map((turn, i) => (
+            {transcriptList.map((turn, i) => (
               <div
                 key={i}
                 className={`p-2 rounded-md text-[11px] leading-relaxed ${

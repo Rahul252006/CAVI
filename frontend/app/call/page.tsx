@@ -35,8 +35,12 @@ const AgoraConversationWrapper = dynamic(
 );
 
 export default function CustomerCallInterfacePage() {
-  const [supportPhone, setSupportPhone] = useState('');
-  const [callerPhone, setCallerPhone] = useState('');
+  const [supportCountryCode, setSupportCountryCode] = useState('+91');
+  const [supportPhoneDigits, setSupportPhoneDigits] = useState('');
+
+  const [callerCountryCode, setCallerCountryCode] = useState('+91');
+  const [callerPhoneDigits, setCallerPhoneDigits] = useState('');
+
   const [registeredCompanies, setRegisteredCompanies] = useState<
     Array<{ id: string; name: string; supportPhone: string; industry: string }>
   >([]);
@@ -66,6 +70,10 @@ export default function CustomerCallInterfacePage() {
       .then((data) => {
         if (data.success && Array.isArray(data.companies)) {
           setRegisteredCompanies(data.companies);
+          if (data.companies[0]?.supportPhone) {
+            const digits = data.companies[0].supportPhone.replace(/\D/g, '').slice(-10);
+            if (digits) setSupportPhoneDigits(digits);
+          }
         }
       })
       .catch((err) => console.error('Failed to load registered companies:', err));
@@ -74,6 +82,17 @@ export default function CustomerCallInterfacePage() {
   const handleStartCall = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const cleanSupport = supportPhoneDigits.replace(/\D/g, '').slice(0, 10);
+    const cleanCaller = callerPhoneDigits.replace(/\D/g, '').slice(0, 10);
+    if (cleanSupport.length < 6 || cleanCaller.length < 6) {
+      setError('Enter the registered company hotline and the real caller phone number to start.');
+      return;
+    }
+
+    const fullSupportPhone = `${supportCountryCode}${cleanSupport}`;
+    const fullCallerPhone = `${callerCountryCode}${cleanCaller}`;
+
     setIsLoading(true);
     setLoadingStep('Verifying support number...');
     setMatchedCompany(null);
@@ -83,7 +102,12 @@ export default function CustomerCallInterfacePage() {
       const startRes = await fetch('/api/calls/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ supportPhone, callerPhone }),
+        body: JSON.stringify({
+          supportPhone: fullSupportPhone,
+          phone: fullSupportPhone,
+          callerPhone: fullCallerPhone,
+          callerNumber: fullCallerPhone,
+        }),
       });
 
       const startData = await startRes.json();
@@ -115,24 +139,46 @@ export default function CustomerCallInterfacePage() {
           }),
 
         (async () => {
-          const { default: AgoraRTM } = await import('agora-rtm');
-          const rtm: RTMClient = new AgoraRTM.RTM(
-            process.env.NEXT_PUBLIC_AGORA_APP_ID!,
-            startData.uid
-          );
-          await rtm.login({ token: startData.rtmToken || startData.token });
-          await rtm.subscribe(startData.channel);
-          return rtm;
+          try {
+            const { default: AgoraRTM } = await import('agora-rtm');
+            const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID || '4849add8a86849f098b0523bedea6cba';
+            const rtmUserId = String(startData.rtmUserId || `user_${startData.uid || Math.floor(Math.random() * 899999 + 100000)}`);
+            const rtm: RTMClient = new AgoraRTM.RTM(appId, rtmUserId);
+            if (startData.rtmToken) {
+              await rtm.login({ token: startData.rtmToken }).catch((err) => console.warn('RTM login warning:', err));
+            } else {
+              await rtm.login().catch((err) => console.warn('RTM login warning:', err));
+            }
+            if (startData.channel) {
+              await rtm.subscribe(startData.channel).catch((err) => console.warn('RTM subscribe warning:', err));
+            }
+            return rtm;
+          } catch (rtmErr) {
+            console.warn('RTM initialization warning (voice RTC active):', rtmErr);
+            return null;
+          }
         })(),
       ]);
+
+      const resolvedCompanyId = startData.companyId || startData.company?.id || '';
+      if (typeof window !== 'undefined') {
+        if (resolvedCompanyId) localStorage.setItem('echosphere_company_id', resolvedCompanyId);
+        if (fullCallerPhone) localStorage.setItem('echosphere_caller_phone', fullCallerPhone);
+      }
 
       setRtmClient(rtm);
       setAgoraData({
         token: startData.token,
         channel: startData.channel,
-        uid: startData.uid,
+        uid: String(startData.uid),
         agentId: agentData?.agent_id,
-      });
+        companyId: resolvedCompanyId,
+        callId: startData.callId,
+        callerPhone: fullCallerPhone,
+        callerNumber: fullCallerPhone,
+        customerPhone: fullCallerPhone,
+        companyName: startData.company?.name || 'Customer Support',
+      } as any);
 
       setShowConversation(true);
     } catch (err) {
@@ -183,7 +229,7 @@ export default function CustomerCallInterfacePage() {
   }, [agoraData, rtmClient]);
 
   // Active call view
-  if (showConversation && agoraData && rtmClient) {
+  if (showConversation && agoraData) {
     return (
       <div className="flex h-screen w-full flex-col bg-slate-950 text-white">
         <AgoraConversationWrapper
@@ -283,10 +329,7 @@ export default function CustomerCallInterfacePage() {
               {error && (
                 <div className="rounded-xl bg-red-50 border border-red-200 p-3.5 text-red-700 font-medium flex items-start gap-2.5 shadow-xs animate-in fade-in">
                   <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-bold">Match Failed</div>
-                    <div className="text-[11px] text-red-600 mt-0.5">{error}</div>
-                  </div>
+                  <div className="text-xs text-red-600 font-semibold">{error}</div>
                 </div>
               )}
 
@@ -300,41 +343,60 @@ export default function CustomerCallInterfacePage() {
                 </div>
               )}
 
-              {/* Input 1: Company Customer Care Number */}
+              {/* Input 1: Company Customer Care Number (Country Code + 10 Digits) */}
               <div className="space-y-1">
                 <label className="block font-bold text-slate-800 text-xs">
-                  Company Customer Care Number <span className="text-blue-600">*</span>
+                  Company Customer Care Phone Number <span className="text-blue-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={supportPhone}
-                  onChange={(e) => setSupportPhone(e.target.value)}
-                  placeholder="e.g. +919876543210"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-bold text-xs sm:text-sm shadow-xs transition-colors"
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={supportCountryCode}
+                    onChange={(e) => setSupportCountryCode(e.target.value)}
+                    className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 font-mono font-bold text-xs sm:text-sm focus:outline-none focus:border-blue-600 shrink-0"
+                  >
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+49">🇩🇪 +49</option>
+                    <option value="+971">🇦🇪 +971</option>
+                  </select>
+                  <input
+                    type="text"
+                    required
+                    maxLength={10}
+                    value={supportPhoneDigits}
+                    onChange={(e) => setSupportPhoneDigits(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="10-digit hotline (e.g. 8005006001)"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-bold text-xs sm:text-sm shadow-xs transition-colors tracking-wider"
+                  />
+                </div>
 
-                {registeredCompanies.length > 0 ? (
+                {registeredCompanies.filter((c, idx, self) => self.findIndex(t => t.id === c.id || t.name === c.name) === idx).length > 0 ? (
                   <div className="mt-2 space-y-1">
-                    <span className="text-[11px] font-semibold text-slate-500">Registered Companies:</span>
+                    <span className="text-[11px] font-semibold text-slate-500">Registered Onboarded Companies:</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {registeredCompanies.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            setSupportPhone(c.supportPhone);
-                            setError(null);
-                          }}
-                          className={`rounded-lg px-2.5 py-1 font-mono text-[11px] font-bold border transition-all ${
-                            supportPhone === c.supportPhone
-                              ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
-                              : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                          }`}
-                        >
-                          {c.name} ({c.supportPhone})
-                        </button>
-                      ))}
+                      {registeredCompanies
+                        .filter((c, idx, self) => self.findIndex(t => t.id === c.id || t.name === c.name) === idx)
+                        .map((c) => {
+                          const cleanDigits = c.supportPhone.replace(/\D/g, '').slice(-10);
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setSupportPhoneDigits(cleanDigits);
+                                setError(null);
+                              }}
+                              className={`rounded-lg px-2.5 py-1 font-mono text-[11px] font-bold border transition-all ${
+                                supportPhoneDigits === cleanDigits
+                                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-xs'
+                                  : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                              }`}
+                            >
+                              {c.name} ({c.supportPhone})
+                            </button>
+                          );
+                        })}
                     </div>
                   </div>
                 ) : (
@@ -348,21 +410,35 @@ export default function CustomerCallInterfacePage() {
                 )}
               </div>
 
-              {/* Input 2: Your Phone Number (Caller ID) */}
+              {/* Input 2: Your Mobile Number (Country Code + 10 Digits) */}
               <div className="space-y-1">
                 <label className="block font-bold text-slate-800 text-xs">
-                  Your Phone Number (Caller ID) <span className="text-blue-600">*</span>
+                  Your Personal Mobile Phone Number (Caller ID) <span className="text-blue-600">*</span>
                 </label>
-                <input
-                  type="tel"
-                  required
-                  value={callerPhone}
-                  onChange={(e) => setCallerPhone(e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-medium text-xs shadow-xs transition-colors"
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={callerCountryCode}
+                    onChange={(e) => setCallerCountryCode(e.target.value)}
+                    className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 font-mono font-bold text-xs sm:text-sm focus:outline-none focus:border-blue-600 shrink-0"
+                  >
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+49">🇩🇪 +49</option>
+                    <option value="+971">🇦🇪 +971</option>
+                  </select>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    value={callerPhoneDigits}
+                    onChange={(e) => setCallerPhoneDigits(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="10-digit mobile (e.g. 9876543210)"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 font-mono font-semibold text-xs sm:text-sm shadow-xs transition-colors tracking-wider"
+                  />
+                </div>
                 <p className="text-[11px] text-slate-500 font-medium">
-                  Used for verification and human officer callbacks.
+                  Strictly 10 digits required (no gaps). Used for verification and human officer callbacks.
                 </p>
               </div>
 

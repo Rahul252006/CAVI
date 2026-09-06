@@ -59,6 +59,9 @@ export function generateCaseDNA(
     nextBestAction = 'Confirm refund policy terms and process instant reversal.';
   }
 
+  const storedPhone = typeof window !== 'undefined' ? (localStorage.getItem('echosphere_caller_phone') || localStorage.getItem('echosphere_user_phone') || '') : '';
+  const customerPhone = state.facts.phone?.value || state.facts.customerPhone?.value || storedPhone;
+
   return {
     caseId,
     sessionId: state.sessionId,
@@ -66,6 +69,8 @@ export function generateCaseDNA(
     status: 'pending',
     intent: state.intent.value || state.facts.issue?.value || 'Customer Support Inquiry',
     customerGoal: state.facts.customerGoal?.value || 'Resolve issue with support',
+    customerPhone: customerPhone || undefined,
+    callerPhone: customerPhone || undefined,
     language: {
       primary: state.language.primary || 'en',
       languagesUsed: state.language.detected,
@@ -77,6 +82,12 @@ export function generateCaseDNA(
     sentiment: state.emotion.sentiment,
     frustration: state.emotion.frustration,
     healthScore: state.conversationHealth.score,
+    confidence: Math.min(
+      state.intent.confidence || 1,
+      state.language.confidence || 1,
+      state.conversationHealth.confidence || 1,
+      state.emotion.confidence || 1
+    ),
     escalation: {
       required: true,
       reason: escalationReason,

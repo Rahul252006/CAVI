@@ -3,23 +3,32 @@ import { config } from '../../config/index.js';
 
 let client: MongoClient | null = null;
 let clientPromise: Promise<MongoClient> | null = null;
+let mongoFailedRecently = false;
+let lastFailureTime = 0;
 
 export async function getMongoClient(): Promise<MongoClient> {
   if (client) {
     return client;
   }
 
+  if (mongoFailedRecently && Date.now() - lastFailureTime < 30000) {
+    throw new Error('MongoDB currently unavailable (using in-memory fallback)');
+  }
+
   if (!clientPromise) {
     const uri = config.mongoUri;
-    client = new MongoClient(uri, {
+    const mongoInstance = new MongoClient(uri, {
       maxPoolSize: 20,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 1000,
     });
-    clientPromise = client.connect().then((c) => {
+    clientPromise = mongoInstance.connect().then((c) => {
       console.log(`[MongoDB] Connected successfully to ${uri}`);
+      client = c;
+      mongoFailedRecently = false;
       return c;
     }).catch((err) => {
-      console.error('[MongoDB] Connection failed:', err);
+      mongoFailedRecently = true;
+      lastFailureTime = Date.now();
       clientPromise = null;
       throw err;
     });

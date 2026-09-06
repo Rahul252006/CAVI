@@ -21,14 +21,15 @@ export async function startCall(params: {
   const callId = `call_${Date.now()}`;
   const agoraChannel = `cavi_ch_${Date.now()}`;
 
-  // Generate caller token
-  const tokenData = generateAgoraToken(agoraChannel, 0, 'publisher');
+  // Generate caller token with valid numeric UID
+  const userUid = Math.floor(Math.random() * 899999 + 100000);
+  const tokenData = generateAgoraToken(agoraChannel, userUid, 'publisher');
 
   const callRecord: CallRecord = {
     id: callId,
     companyId: company.id,
-    callerNumber: params.callerNumber || '+919876543210',
-    callerName: params.callerName || 'Valued Caller',
+    callerNumber: params.callerNumber || '',
+    callerName: params.callerName,
     direction: 'inbound',
     status: 'active',
     durationSeconds: 0,
@@ -50,8 +51,17 @@ export async function startCall(params: {
     callId,
     companyId: company.id,
     companyName: company.name,
+    company: {
+      id: company.id,
+      name: company.name,
+      supportPhone: company.supportPhone,
+      industry: company.industry,
+    },
     agoraChannel,
+    channel: agoraChannel,
     token: tokenData.token,
+    rtmToken: tokenData.rtmToken || tokenData.token,
+    rtmUserId: tokenData.rtmUserId,
     appId: tokenData.appId,
     uid: tokenData.uid,
     callRecord,
@@ -62,7 +72,7 @@ export async function getCall(id: string) {
   return await mongoGetCall(id);
 }
 
-export async function getCompanyCalls(companyId: string) {
+export async function getCompanyCalls(companyId?: string) {
   return await mongoGetCallsByCompany(companyId);
 }
 

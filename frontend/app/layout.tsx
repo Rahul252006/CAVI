@@ -5,6 +5,7 @@ import './globals.css';
 const lora = Lora({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
   variable: '--font-lora',
   display: 'swap',
 });
@@ -48,7 +49,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full scroll-smooth ${lora.variable}`}>
-      <body className={`h-full min-h-screen ${lora.className} antialiased`}>{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="h-full min-h-screen antialiased">{children}</body>
     </html>
   );
 }

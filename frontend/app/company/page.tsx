@@ -96,7 +96,7 @@ export default function CompanySetupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tool: selectedTool,
-          params: { transactionId: 'TXN8392', amount: 2499, customerId: 'CUS-1001' },
+          params: {},
         }),
       });
       const data = await res.json();
@@ -311,11 +311,11 @@ export default function CompanySetupPage() {
                   onChange={(e) => setSelectedTool(e.target.value)}
                   className="flex-1 rounded-lg border border-border/80 bg-background/80 px-3 py-2 text-xs font-semibold text-foreground focus:outline-none"
                 >
-                  <option value="lookup_transaction">lookup_transaction (TXN8392)</option>
-                  <option value="create_ticket">create_ticket (Payment Failure)</option>
-                  <option value="get_refund_status">get_refund_status (TXN8392)</option>
-                  <option value="schedule_callback">schedule_callback (CUS-1001)</option>
-                  <option value="lookup_customer">lookup_customer (CUS-1001)</option>
+                  <option value="lookup_transaction">lookup_transaction</option>
+                  <option value="create_ticket">create_ticket</option>
+                  <option value="get_refund_status">get_refund_status</option>
+                  <option value="schedule_callback">schedule_callback</option>
+                  <option value="lookup_customer">lookup_customer</option>
                 </select>
 
                 <button

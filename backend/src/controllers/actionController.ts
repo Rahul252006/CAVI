@@ -5,9 +5,9 @@ import { analyzeSentimentAndEmotion } from '../services/analyzeService.js';
 export async function handleRefund(req: Request, res: Response) {
   try {
     const { companyId, orderId, amount, reason, customerPhone } = req.body;
-    const result = await processRefund(companyId || 'company_default', {
-      orderId: orderId || `ORD_${Date.now()}`,
-      amount: Number(amount || 50),
+    const result = await processRefund(companyId, {
+      orderId,
+      amount: Number(amount),
       reason,
       customerPhone,
     });
@@ -20,8 +20,8 @@ export async function handleRefund(req: Request, res: Response) {
 export async function handleLookup(req: Request, res: Response) {
   try {
     const { companyId, referenceId, type } = req.body;
-    const result = await lookupStatus(companyId || 'company_default', {
-      referenceId: referenceId || `REF_${Date.now()}`,
+    const result = await lookupStatus(companyId, {
+      referenceId,
       type,
     });
     return res.json({ success: true, ...result });

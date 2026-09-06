@@ -5,6 +5,8 @@ export interface AgoraTokenData {
   uid: string;
   channel: string;
   agentId?: string;
+  companyId?: string;
+  callId?: string;
 }
 
 export interface ClientStartRequest {

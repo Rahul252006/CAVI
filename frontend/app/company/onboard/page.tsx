@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CompanyOnboardingWizardPage() {
   const router = useRouter();
@@ -26,14 +27,14 @@ export default function CompanyOnboardingWizardPage() {
     companyId: '',
     name: '',
     legalName: '',
-    industry: '',
+    industry: 'Fintech & Digital Payments',
     website: '',
     description: '',
-    country: '',
+    country: 'India',
     state: '',
-    city: '',
+    city: 'Bengaluru',
     businessAddress: '',
-    timezone: '',
+    timezone: 'Asia/Kolkata (GMT+5:30)',
     primaryContactName: '',
     primaryContactEmail: '',
     primaryContactPhone: '',
@@ -42,16 +43,16 @@ export default function CompanyOnboardingWizardPage() {
     supportPhone: '',
     phoneType: 'PSTN',
     countryCode: '+91',
-    businessHours: '',
+    businessHours: '24/7 Live Voice AI Operations',
     is24x7Support: true,
-    supportedLanguages: ['Hindi', 'English'],
+    supportedLanguages: ['Hindi', 'English', 'Tamil'],
 
     plan: 'Growth',
-    tagline: '',
+    tagline: 'Autonomous Multilingual Customer Voice Resolution Engine',
 
     // Company Brain
-    aiAgentName: '',
-    welcomeMessage: '',
+    aiAgentName: 'CAVI Voice Specialist',
+    welcomeMessage: 'Welcome to customer support. How can I assist with your account or order today?',
     tone: 'Empathetic & Professional',
     allowedActions: ['check_status', 'lookup_customer', 'create_ticket'],
     confirmationActions: ['update_customer_details'],
@@ -65,7 +66,7 @@ export default function CompanyOnboardingWizardPage() {
     initialAgentName: '',
     initialAgentEmail: '',
     initialAgentPhone: '',
-    initialAgentDepartment: 'Payments & Refunds',
+    initialAgentDepartment: '',
   });
 
   useEffect(() => {
@@ -85,25 +86,25 @@ export default function CompanyOnboardingWizardPage() {
               companyId: company.id,
               name: company.name || '',
               legalName: company.legalName || '',
-              industry: company.industry || '',
+              industry: company.industry || 'Fintech & Digital Payments',
               website: company.website || '',
               description: company.description || '',
-              country: company.country || '',
+              country: company.country || 'India',
               state: company.state || '',
-              city: company.city || '',
+              city: company.city || 'Bengaluru',
               businessAddress: company.businessAddress || '',
-              timezone: company.timezone || '',
+              timezone: company.timezone || 'Asia/Kolkata (GMT+5:30)',
               primaryContactName: company.primaryContactName || '',
               primaryContactEmail: company.primaryContactEmail || '',
               primaryContactPhone: company.primaryContactPhone || '',
               supportPhone: company.supportPhone || '',
               phoneType: company.phoneType || 'PSTN',
               countryCode: company.countryCode || '',
-              businessHours: company.businessHours || '',
+              businessHours: company.businessHours || '24/7 Live Voice AI Operations',
               is24x7Support: company.is24x7Support ?? true,
-              supportedLanguages: company.supportedLanguages || ['Hindi', 'English'],
+              supportedLanguages: company.supportedLanguages || ['Hindi', 'English', 'Tamil'],
               plan: company.plan || 'Growth',
-              tagline: company.tagline || '',
+              tagline: company.tagline || 'Autonomous Multilingual Customer Voice Resolution Engine',
             }));
           })
           .catch(console.error);
@@ -116,8 +117,63 @@ export default function CompanyOnboardingWizardPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateStep = (currentStep: number): boolean => {
+    setError(null);
+
+    if (currentStep === 1) {
+      if (!formData.name.trim()) {
+        setError('Please enter your Brand Name before proceeding to the next step.');
+        return false;
+      }
+      if (!formData.legalName.trim()) {
+        setError('Please enter your Legal / Registered Entity Name before proceeding to the next step.');
+        return false;
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!formData.supportPhone.trim()) {
+        setError('Please enter your Customer Care Phone Number before proceeding to the next step.');
+        return false;
+      }
+    }
+
+    if (currentStep === 3) {
+      if (!formData.aiAgentName.trim()) {
+        setError('Please enter a Voice AI Assistant Name before proceeding to the next step.');
+        return false;
+      }
+    }
+
+    if (currentStep === 4) {
+      if (!formData.initialSopTitle.trim() || !formData.initialSopContent.trim()) {
+        setError('Please fill in the Document Title and Knowledge Instructions before proceeding.');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleGoToStep = (targetStep: number) => {
+    if (targetStep > step) {
+      for (let s = step; s < targetStep; s++) {
+        if (!validateStep(s)) return;
+      }
+    }
+    setError(null);
+    setStep(targetStep);
+  };
+
   const handleFinishOnboarding = async (e: React.FormEvent) => {
     e.preventDefault();
+    for (let s = 1; s <= 4; s++) {
+      if (!validateStep(s)) {
+        setStep(s);
+        return;
+      }
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -150,160 +206,201 @@ export default function CompanyOnboardingWizardPage() {
   ];
 
   return (
-    <div className="soft-page flex flex-col justify-center items-center p-6">
-      <div className="w-full max-w-3xl soft-card animate-soft-rise p-8 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563eb] text-white font-extrabold">
-              E
+    <div className="min-h-screen w-full bg-slate-100/90 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-10 font-sans selection:bg-blue-600 selection:text-white animate-in fade-in duration-500">
+      
+      {/* FLOATING CONTAINER CARD WITH THICK BRIGHT WHITE BORDER */}
+      <div className="max-w-4xl w-full rounded-[2.5rem] border-[5px] border-white bg-white shadow-2xl overflow-hidden flex flex-col p-6 sm:p-10 my-auto relative">
+        
+        {/* Subtle Light Blue Shade Gradient Overlay Flowing From Top */}
+        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-blue-50/90 via-blue-50/30 to-transparent pointer-events-none" />
+
+        {/* Top Navigation & Title Bar */}
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-5 gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-blue-600 animate-ping" />
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                Company Onboarding
+              </h1>
             </div>
-            <div>
-              <h1 className="font-display text-2xl text-neutral-950">Company onboarding</h1>
-              <p className="text-xs text-neutral-500">Configure the tenant, customer care number, and Company Brain</p>
-            </div>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+              Configure the tenant, customer care number, and Company Brain
+            </p>
           </div>
 
-          <span className="rounded-full bg-white border border-neutral-200 px-3 py-1 text-xs font-bold text-neutral-600">
-            Step {step} of 5
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-xs font-bold text-blue-700 shadow-xs">
+              Step {step} of 5
+            </span>
+
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 text-slate-500" />
+              <span>Exit</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Step Indicator Bar */}
-        <div className="grid grid-cols-5 gap-2 border-b border-slate-100 pb-4">
-          {stepsList.map((s) => {
-            const Icon = s.icon;
-            const isCompleted = step > s.num;
-            const isCurrent = step === s.num;
-            return (
-              <button
-                key={s.num}
-                type="button"
-                onClick={() => setStep(s.num)}
-                className={`flex flex-col items-center p-2 rounded-full text-center transition-all ${
-                  isCurrent
-                    ? 'bg-[#2563eb] border border-[#2563eb] text-white font-bold'
-                    : isCompleted
-                    ? 'text-emerald-700 font-semibold'
-                    : 'text-slate-400'
-                }`}
-              >
-                <div className="flex items-center gap-1 text-xs">
-                  {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-                  <span className="hidden sm:inline">{s.label}</span>
-                </div>
-              </button>
-            );
-          })}
+        {/* STEP TABS ON TOP — HIDDEN SCROLLBAR & STEP VALIDATION */}
+        <div className="relative z-10 my-6">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full">
+            {stepsList.map((s) => {
+              const Icon = s.icon;
+              const isCompleted = step > s.num;
+              const isCurrent = step === s.num;
+              return (
+                <button
+                  key={s.num}
+                  type="button"
+                  onClick={() => handleGoToStep(s.num)}
+                  className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-xs font-bold whitespace-nowrap shrink-0 overflow-hidden transition-all duration-300 shadow-xs ${
+                    isCurrent
+                      ? 'bg-gradient-to-b from-blue-500 to-blue-700 text-white border border-blue-600/40 shadow-md'
+                      : isCompleted
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100/80'
+                      : 'bg-slate-100 text-slate-600 border border-slate-200/80 hover:bg-slate-200/70'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  ) : (
+                    <Icon className={`h-3.5 w-3.5 shrink-0 ${isCurrent ? 'text-white' : 'text-slate-500'}`} />
+                  )}
+                  <span className="whitespace-nowrap leading-none">{s.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-red-600 font-medium text-xs">
+          <div className="relative z-10 mb-6 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 font-medium text-xs shadow-xs animate-in fade-in">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleFinishOnboarding} className="space-y-6 text-xs">
+        {/* FORM CONTAINER — Auto-submit disabled; submits only via explicit final button click */}
+        <form onSubmit={(e) => e.preventDefault()} className="relative z-10 space-y-6 text-xs sm:text-sm">
+          
           {/* STEP 1: Basic Company Profile */}
           {step === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-[#2563eb]" /> Basic Company Information
-              </h3>
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                <h2 className="text-base font-extrabold text-slate-900">Basic Company Information</h2>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Brand Name *</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">
+                    Brand Name <span className="text-blue-600">*</span>
+                  </label>
                   <input
                     type="text"
                     name="name"
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-medium"
+                    placeholder="e.g. Acme Corp"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Legal / Registered Entity Name *</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">
+                    Legal / Registered Entity Name <span className="text-blue-600">*</span>
+                  </label>
                   <input
                     type="text"
                     name="legalName"
                     required
                     value={formData.legalName}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-medium"
+                    placeholder="e.g. Acme Payments Private Limited"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Industry</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Industry</label>
                   <select
                     name="industry"
                     value={formData.industry}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-bold text-xs sm:text-sm shadow-xs transition-colors"
                   >
                     <option value="Fintech & Digital Payments">Fintech & Digital Payments</option>
                     <option value="Retail & E-Commerce">Retail & E-Commerce</option>
                     <option value="Telecommunications">Telecommunications & ISP</option>
                     <option value="Healthcare & Insurance">Healthcare & Insurance</option>
                     <option value="SaaS & Cloud Services">SaaS & Cloud Services</option>
+                    <option value="Logistics & Supply Chain">Logistics & Supply Chain</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Company Website</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Company Website</label>
                   <input
                     type="url"
                     name="website"
                     value={formData.website}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-mono"
+                    placeholder="https://company.com"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-mono text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Company Tagline / Value Proposition</label>
+              <div className="space-y-1">
+                <label className="block font-bold text-slate-800 text-xs">Company Tagline / Value Proposition</label>
                 <input
                   type="text"
                   name="tagline"
                   value={formData.tagline}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  placeholder="e.g. Autonomous Multilingual Customer Support Resolution"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Country</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Country</label>
                   <input
                     type="text"
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                    placeholder="India"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">City</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">City</label>
                   <input
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                    placeholder="Bengaluru"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Timezone</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Timezone</label>
                   <input
                     type="text"
                     name="timezone"
                     value={formData.timezone}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-mono"
+                    placeholder="Asia/Kolkata (GMT+5:30)"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-mono text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
               </div>
@@ -312,20 +409,27 @@ export default function CompanyOnboardingWizardPage() {
 
           {/* STEP 2: Support & Telephony */}
           {step === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <div className="soft-card bg-neutral-50 p-4 space-y-1">
-                <div className="text-xs font-bold text-neutral-950 flex items-center gap-1.5">
-                  <PhoneCall className="h-4 w-4 text-neutral-950" />
-                  Your Company-Owned Dedicated Support Hotline
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <PhoneCall className="h-5 w-5 text-blue-600" />
+                <h2 className="text-base font-extrabold text-slate-900">Support & Telephony Hotline</h2>
+              </div>
+
+              <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 text-blue-950 space-y-1">
+                <div className="text-xs font-bold flex items-center gap-1.5 text-blue-900">
+                  <PhoneCall className="h-4 w-4 text-blue-600" />
+                  Dedicated Customer Care Phone Number
                 </div>
-                <p className="text-[11px] text-slate-600">
-                  This is the actual phone number your customers will call from their physical mobile phones. When an inbound call reaches EchoSphere, the destination number automatically maps to this company&apos;s isolated brain.
+                <p className="text-xs text-blue-800/90 leading-relaxed">
+                  Inbound calls to this number map directly to your isolated Company Brain.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Existing Customer Care Hotline *</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">
+                    Customer Care Phone Number <span className="text-blue-600">*</span>
+                  </label>
                   <input
                     type="text"
                     name="supportPhone"
@@ -333,17 +437,17 @@ export default function CompanyOnboardingWizardPage() {
                     value={formData.supportPhone}
                     onChange={handleChange}
                     placeholder="e.g. +91 (800) 555-ACME"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-sm"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 font-bold font-mono focus:outline-none focus:border-blue-600 text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Telephony Gateway Type</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Telephony Gateway</label>
                   <select
                     name="phoneType"
                     value={formData.phoneType}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-bold text-xs sm:text-sm shadow-xs transition-colors"
                   >
                     <option value="PSTN">PSTN Cellular Inbound (Carrier Direct)</option>
                     <option value="SIP">SIP Trunk / PBX Forwarding</option>
@@ -353,24 +457,24 @@ export default function CompanyOnboardingWizardPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Business Support Hours</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Business Support Hours</label>
                   <input
                     type="text"
                     name="businessHours"
                     value={formData.businessHours}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Selected Platform Plan</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Selected Platform Plan</label>
                   <select
                     name="plan"
                     value={formData.plan}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-bold text-xs sm:text-sm shadow-xs transition-colors"
                   >
                     <option value="Starter">Starter ($0.20 / min)</option>
                     <option value="Growth">Growth ($0.15 / min)</option>
@@ -383,29 +487,31 @@ export default function CompanyOnboardingWizardPage() {
 
           {/* STEP 3: Company Brain & AI Persona */}
           {step === 3 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Brain className="h-4 w-4 text-[#2563eb]" /> Isolated Company Brain Configuration
-              </h3>
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Brain className="h-5 w-5 text-blue-600" />
+                <h2 className="text-base font-extrabold text-slate-900">Company Brain & AI Settings</h2>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Voice AI Assistant Name</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Voice AI Assistant Name</label>
                   <input
                     type="text"
                     name="aiAgentName"
                     value={formData.aiAgentName}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-medium"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Voice Personality & Tone</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Voice Personality & Tone</label>
                   <select
                     name="tone"
                     value={formData.tone}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-bold text-xs sm:text-sm shadow-xs transition-colors"
                   >
                     <option value="Empathetic & Professional">Empathetic & Professional</option>
                     <option value="Authoritative & Calm">Authoritative & Calm</option>
@@ -415,31 +521,31 @@ export default function CompanyOnboardingWizardPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Custom Welcome Greeting</label>
+              <div className="space-y-1">
+                <label className="block font-bold text-slate-800 text-xs">Custom Welcome Greeting</label>
                 <textarea
                   rows={2}
                   name="welcomeMessage"
                   value={formData.welcomeMessage}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] leading-relaxed"
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 focus:outline-none focus:border-blue-600 leading-relaxed font-medium text-xs sm:text-sm shadow-xs transition-colors"
                 />
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                <div className="font-bold text-slate-900 text-xs">AI Policy Boundary Rules</div>
+                <div className="font-bold text-slate-900 text-xs">AI Action Permission Matrix</div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
-                  <div className="rounded border border-emerald-200 bg-emerald-50/70 p-2.5">
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/80 p-3">
                     <div className="font-bold text-emerald-900">✓ Auto-Allowed</div>
-                    <div className="text-slate-600 mt-1">check_transaction, lookup_customer, create_ticket</div>
+                    <div className="text-slate-600 mt-1">check_status, lookup_customer, create_ticket</div>
                   </div>
-                  <div className="rounded border border-amber-200 bg-amber-50/70 p-2.5">
+                  <div className="rounded-lg border border-amber-200 bg-amber-50/80 p-3">
                     <div className="font-bold text-amber-900">⚠ Requires Confirmation</div>
-                    <div className="text-slate-600 mt-1">update_customer_details, change_address</div>
+                    <div className="text-slate-600 mt-1">update_customer_details</div>
                   </div>
-                  <div className="rounded border border-red-200 bg-red-50/70 p-2.5">
+                  <div className="rounded-lg border border-red-200 bg-red-50/80 p-3">
                     <div className="font-bold text-red-900">🛑 Human Approval Required</div>
-                    <div className="text-slate-600 mt-1">request_refund, unfreeze_account</div>
+                    <div className="text-slate-600 mt-1">request_refund, cancel_subscription</div>
                   </div>
                 </div>
               </div>
@@ -448,30 +554,31 @@ export default function CompanyOnboardingWizardPage() {
 
           {/* STEP 4: Initial Knowledge & SOPs */}
           {step === 4 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#2563eb]" /> Initial SOPs & Refund Policies
-              </h3>
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <ShieldCheck className="h-5 w-5 text-blue-600" />
+                <h2 className="text-base font-extrabold text-slate-900">Policies & Knowledge Guidelines</h2>
+              </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Document / Policy Title</label>
+              <div className="space-y-1">
+                <label className="block font-bold text-slate-800 text-xs">Policy Document Title</label>
                 <input
                   type="text"
                   name="initialSopTitle"
                   value={formData.initialSopTitle}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-medium"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                 />
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Knowledge & Policy Instructions for Voice AI</label>
+              <div className="space-y-1">
+                <label className="block font-bold text-slate-800 text-xs">SOP & Operational Knowledge Instructions</label>
                 <textarea
                   rows={4}
                   name="initialSopContent"
                   value={formData.initialSopContent}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] leading-relaxed"
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-slate-900 focus:outline-none focus:border-blue-600 leading-relaxed font-medium text-xs sm:text-sm shadow-xs transition-colors"
                 />
               </div>
             </div>
@@ -479,52 +586,55 @@ export default function CompanyOnboardingWizardPage() {
 
           {/* STEP 5: Invite Initial Support Specialist */}
           {step === 5 && (
-            <div className="space-y-4 animate-in fade-in duration-200">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-[#2563eb]" /> Invite Your First Human Support Specialist
-              </h3>
+            <div className="space-y-5 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <UserPlus className="h-5 w-5 text-blue-600" />
+                <h2 className="text-base font-extrabold text-slate-900">Invite First Human Support Specialist</h2>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Officer Name</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Officer Name</label>
                   <input
                     type="text"
                     name="initialAgentName"
                     value={formData.initialAgentName}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-medium"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Official Work Email</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Official Work Email</label>
                   <input
                     type="email"
                     name="initialAgentEmail"
                     value={formData.initialAgentEmail}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-mono"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-mono text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Outbound Calling Phone Number</label>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Callback Phone Number</label>
                   <input
                     type="tel"
                     name="initialAgentPhone"
                     value={formData.initialAgentPhone}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-mono"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-mono text-xs sm:text-sm shadow-xs transition-colors"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Assigned Department</label>
+
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-800 text-xs">Assigned Department</label>
                   <select
                     name="initialAgentDepartment"
                     value={formData.initialAgentDepartment}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb] font-semibold"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 focus:outline-none focus:border-blue-600 font-bold text-xs sm:text-sm shadow-xs transition-colors"
                   >
                     <option value="Payments & Refunds">Payments & Refunds Specialist</option>
                     <option value="Technical Support">Technical Support Specialist</option>
@@ -536,15 +646,16 @@ export default function CompanyOnboardingWizardPage() {
             </div>
           )}
 
-          {/* Bottom Navigation Buttons */}
-          <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+          {/* BOTTOM STEP NAVIGATION BUTTONS */}
+          <div className="flex items-center justify-between border-t border-slate-100 pt-5">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={() => setStep((s) => s - 1)}
-                className="soft-action-secondary px-4 py-2"
+                className="inline-flex items-center gap-2 rounded-full bg-white text-neutral-950 border border-slate-300 hover:bg-slate-50 font-bold text-xs sm:text-sm px-5 py-2.5 transition-colors shadow-xs"
               >
-                <ArrowLeft className="h-4 w-4" /> Previous Step
+                <ArrowLeft className="h-4 w-4" />
+                <span>Previous Step</span>
               </button>
             ) : (
               <div />
@@ -553,24 +664,33 @@ export default function CompanyOnboardingWizardPage() {
             {step < 5 ? (
               <button
                 type="button"
-                onClick={() => setStep((s) => s + 1)}
-                className="soft-action px-6 py-2.5"
+                onClick={() => handleGoToStep(step + 1)}
+                className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs sm:text-sm px-6 py-2.5 shadow-md border border-blue-600/40 transition-colors"
               >
-                Continue to Step {step + 1} <ArrowRight className="h-4 w-4" />
+                <span>Continue to Step {step + 1}</span>
+                <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
                 disabled={isLoading}
-                className="soft-action px-7 py-3 disabled:opacity-50"
+                onClick={handleFinishOnboarding}
+                className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-b from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold text-xs sm:text-sm px-7 py-3 shadow-md border border-blue-600/40 transition-colors disabled:opacity-80"
               >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Complete Onboarding & Launch Admin Console →
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  <Sparkles className="h-4 w-4 text-white" />
+                )}
+                <span>Complete Onboarding & Launch Admin Console →</span>
               </button>
             )}
           </div>
+
         </form>
+
       </div>
+
     </div>
   );
 }

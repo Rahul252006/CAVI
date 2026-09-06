@@ -10,6 +10,7 @@ import caseRoutes from './routes/caseRoutes.js';
 import agoraRoutes from './routes/agoraRoutes.js';
 import actionRoutes from './routes/actionRoutes.js';
 import telephonyRoutes from './routes/telephonyRoutes.js';
+import llmRoutes from './routes/llmRoutes.js';
 
 const app = express();
 
@@ -43,8 +44,11 @@ app.get('/health', (_req, res) => {
 
 // 4. API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', companyRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/company', companyRoutes);
+app.use('/api', authRoutes);
+app.use('/api', companyRoutes);
 app.use('/api/calls', callRoutes);
 app.use('/api/dialer', callRoutes);
 app.use('/api/cases', caseRoutes);
@@ -52,6 +56,7 @@ app.use('/api/case', caseRoutes);
 app.use('/api/agora', agoraRoutes);
 app.use('/api/action', actionRoutes);
 app.use('/api/telephony', telephonyRoutes);
+app.use('/api/llm', llmRoutes);
 
 // Direct contract aliases matching legacy paths for seamless compatibility
 app.post('/api/generate-agora-token', (req, res, next) => {

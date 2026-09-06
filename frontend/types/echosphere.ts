@@ -105,53 +105,80 @@ export type ConversationState = {
 
 export type CaseDNA = {
   caseId: string;
-  sessionId: string;
+  sessionId?: string;
+  id?: string;
   companyId?: string;
-  createdAt: string;
-  status: 'pending' | 'assigned' | 'in_progress' | 'resolved';
+  createdAt?: string;
+  updatedAt?: string;
+  status?: 'pending' | 'assigned' | 'in_progress' | 'resolved' | string;
 
-  intent: string;
-  customerGoal: string;
+  intent?: string;
+  customerGoal?: string;
+  goal?: string;
 
-  language: {
-    primary: string;
-    languagesUsed: string[];
-    codeSwitching: boolean;
+  language?: {
+    primary?: string;
+    languagesUsed?: string[];
+    codeSwitching?: boolean;
   };
+  primaryLanguage?: string;
+  detectedLanguages?: string[];
 
-  facts: Array<{
+  facts?: Array<{
     key: string;
     value: string;
-    confidence: number;
-    confirmed: boolean;
+    confidence?: number;
+    confirmed?: boolean;
   }>;
+  confirmedFacts?: Record<string, any>;
+  uncertainFacts?: Record<string, any>;
 
-  conflicts: Array<{
+  conflicts?: Array<{
     field: string;
     oldValue: string;
     newValue: string;
-    resolved: boolean;
+    resolved?: boolean;
     resolution?: string;
   }>;
 
-  actions: Array<{
+  actions?: Array<{
     action: string;
-    status: 'attempted' | 'success' | 'failed';
+    status?: 'attempted' | 'success' | 'failed' | string;
     result?: string;
   }>;
+  actionsTaken?: any[];
 
-  sentiment: string;
-  frustration: number;
-  healthScore: number;
+  sentiment?: string;
+  sentimentScore?: number;
+  frustration?: number;
+  frustrationScore?: number;
+  frustrationSignals?: string[];
+  healthScore?: number;
+  riskScore?: number;
+  confidence?: number;
+  riskReasons?: string[];
 
-  escalation: {
-    required: boolean;
+  escalation?: {
+    required?: boolean;
     reason?: string;
-    priority: 'low' | 'medium' | 'high' | 'critical';
-    targetSpecialist: string;
+    priority?: 'low' | 'medium' | 'high' | 'critical' | 'urgent' | string;
+    targetSpecialist?: string;
   };
+  priority?: string;
+  escalationReason?: string | null;
+  suggestedDepartment?: string | null;
+  suggestedOfficerId?: string | null;
+  assignedOfficerId?: string | null;
+  assignedOfficerName?: string | null;
+  assignmentStatus?: 'assigned' | 'unassigned_no_available_officer' | string;
+  adminActionRequired?: boolean;
+  adminNotification?: string;
 
-  summary: string;
+  summary?: string;
   nextBestAction?: string;
-  transcriptSnippet?: Array<{ role: string; text: string; timestamp: number }>;
+  customerPhone?: string;
+  callerPhone?: string;
+  customerName?: string;
+  transcripts?: Array<{ role?: string; speaker?: string; text: string; timestamp?: number }> | any[];
+  transcriptSnippet?: Array<{ role?: string; speaker?: string; text: string; timestamp?: number }>;
 };
