@@ -39,6 +39,10 @@ You are CAVI (Customer Assistance through Voice Intelligence).
   Politely redirect: "I can only help with your orders and account on this line. Is there an order issue I can help you with today?"`;
 
 function getApiKey(keyName: string): string {
+  if (process.env[keyName] && process.env[keyName]!.trim() !== '') {
+    return process.env[keyName]!.replace(/['"]/g, '').trim();
+  }
+
   const possiblePaths = [
     path.resolve(process.cwd(), '.env'),
     path.resolve(process.cwd(), '.env.local'),
@@ -63,10 +67,6 @@ function getApiKey(keyName: string): string {
         }
       }
     } catch {}
-  }
-
-  if (process.env[keyName] && process.env[keyName]!.trim() !== '') {
-    return process.env[keyName]!.replace(/['"]/g, '').trim();
   }
 
   return '';

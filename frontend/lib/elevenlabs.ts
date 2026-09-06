@@ -131,7 +131,11 @@ export async function speakWithDeepgram(
   // Stop any ongoing audio safely
   stopCurrentAudio();
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')
+    : typeof window !== 'undefined'
+      ? ''
+      : 'http://localhost:4000';
 
   try {
     const res = await fetch(`${backendUrl}/api/llm/tts`, {

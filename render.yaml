@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: cavi-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: pnpm install && pnpm build
+    startCommand: node dist/server.js
+    envVars:
+      - key: PORT
+        value: 4000
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: '*'
+      - key: MONGODB_URI
+        sync: false
+      - key: AGORA_APP_ID
+        sync: false
+      - key: AGORA_APP_CERTIFICATE
+        sync: false
+      - key: AGORA_CONVERSATIONAL_AI_API_KEY
+        sync: false
+      - key: AGORA_AGENT_ID
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: DEEPGRAM_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
