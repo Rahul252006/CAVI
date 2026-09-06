@@ -6,15 +6,11 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "include": [
-    "scripts/**/*"
-  ],
+  "include": [],
   "exclude": [
     "node_modules",
-    "**/node_modules",
-    ".next",
-    "**/.next",
-    "backend/dist"
+    "backend/dist",
+    "frontend/.next"
   ],
   "references": [
     { "path": "./frontend" },
