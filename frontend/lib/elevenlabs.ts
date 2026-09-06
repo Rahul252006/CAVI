@@ -10,7 +10,7 @@ export interface ElevenLabsVoice {
 
 export const ELEVENLABS_FEMALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenLabsVoice> = {
   en: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID_EN || process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM', // Rachel / Priya - Warm, Soothing Female Voice
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN || process.env.ELEVENLABS_VOICE_ID_EN || process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID || process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL', // Sarah / Priya - Warm, Soothing Female Voice
     name: 'Priya (ElevenLabs Female)',
     language: 'English',
     languageCode: 'en',
@@ -19,7 +19,7 @@ export const ELEVENLABS_FEMALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenL
     description: 'Calm, soothing, empathetic English female customer resolution voice.',
   },
   hi: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_HI || process.env.ELEVENLABS_VOICE_ID_HI || '21m00Tcm4TlvDq8ikWAM',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_HI || process.env.ELEVENLABS_VOICE_ID_HI || 'EXAVITQu4vr4xnSDxMaL',
     name: 'Priya (ElevenLabs Female - Hindi)',
     language: 'Hindi',
     languageCode: 'hi',
@@ -28,7 +28,7 @@ export const ELEVENLABS_FEMALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenL
     description: 'Crisp, natural Hindi female voice using ElevenLabs Multilingual V2.',
   },
   te: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TE || process.env.ELEVENLABS_VOICE_ID_TE || '21m00Tcm4TlvDq8ikWAM',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TE || process.env.ELEVENLABS_VOICE_ID_TE || 'EXAVITQu4vr4xnSDxMaL',
     name: 'Priya (ElevenLabs Female - Telugu)',
     language: 'Telugu',
     languageCode: 'te',
@@ -37,7 +37,7 @@ export const ELEVENLABS_FEMALE_VOICES: Record<'en' | 'hi' | 'te' | 'ta', ElevenL
     description: 'Smooth, expressive Telugu female voice using ElevenLabs Multilingual V2.',
   },
   ta: {
-    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TA || process.env.ELEVENLABS_VOICE_ID_TA || '21m00Tcm4TlvDq8ikWAM',
+    id: process.env.NEXT_PUBLIC_ELEVENLABS_VOICE_ID_TA || process.env.ELEVENLABS_VOICE_ID_TA || 'EXAVITQu4vr4xnSDxMaL',
     name: 'Priya (ElevenLabs Female - Tamil)',
     language: 'Tamil',
     languageCode: 'ta',

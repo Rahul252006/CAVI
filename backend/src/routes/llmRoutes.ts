@@ -248,9 +248,45 @@ router.post('/generate', async (req: Request, res: Response) => {
 });
 
 async function synthesizeSpeechFast(text: string): Promise<string | null> {
-  const deepgramKey = getApiKey('DEEPGRAM_API_KEY') || getApiKey('NEXT_PUBLIC_DEEPGRAM_API_KEY');
   const cleanSpeechText = text.replace(/!+/g, '.');
 
+  // 1. ElevenLabs High-Speed Turbo Female Voice (Sarah / Priya - Reassuring, Pleasant Customer Care)
+  const elevenLabsKey = getApiKey('ELEVENLABS_API_KEY') || getApiKey('NEXT_PUBLIC_ELEVENLABS_API_KEY');
+  const targetVoiceId = getApiKey('ELEVENLABS_VOICE_ID') || getApiKey('NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN') || 'EXAVITQu4vr4xnSDxMaL';
+
+  if (elevenLabsKey && elevenLabsKey.length > 5) {
+    const candidateVoices = [targetVoiceId, 'EXAVITQu4vr4xnSDxMaL', 'hpp4J3VqNfWAUOO0d1Us', 'Xb7hH8MSUJpSbSDYk0k2', 'XrExE9yKIg1WjnnlVkGX'];
+    for (const vId of candidateVoices) {
+      try {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': elevenLabsKey,
+          },
+          body: JSON.stringify({
+            text: cleanSpeechText,
+            model_id: 'eleven_turbo_v2_5',
+            voice_settings: {
+              stability: 0.85,
+              similarity_boost: 0.85,
+              style: 0.0,
+              use_speaker_boost: false,
+            },
+          }),
+        });
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          return Buffer.from(arrayBuffer).toString('base64');
+        }
+      } catch (err) {
+        console.warn(`[ElevenLabs Fast TTS Error for ${vId}]`, err);
+      }
+    }
+  }
+
+  // 2. Deepgram Aura Female Synthesizer Fallback
+  const deepgramKey = getApiKey('DEEPGRAM_API_KEY') || getApiKey('NEXT_PUBLIC_DEEPGRAM_API_KEY');
   if (deepgramKey && deepgramKey.length > 5) {
     const candidateModels = [
       'aura-asteria-en',
@@ -259,7 +295,6 @@ async function synthesizeSpeechFast(text: string): Promise<string | null> {
       'aura-athena-en',
       'aura-hera-en',
       'aura-2-priya-en',
-      'aura-priya-en',
     ];
 
     for (const model of candidateModels) {
@@ -282,37 +317,6 @@ async function synthesizeSpeechFast(text: string): Promise<string | null> {
     }
   }
 
-  const elevenLabsKey = getApiKey('ELEVENLABS_API_KEY') || getApiKey('NEXT_PUBLIC_ELEVENLABS_API_KEY');
-  // Rachel / Bella gentle pleasant female voices
-  const targetVoiceId = '21m00Tcm4TlvDq8ikWAM';
-  if (elevenLabsKey && elevenLabsKey.length > 5) {
-    try {
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoiceId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': elevenLabsKey,
-        },
-        body: JSON.stringify({
-          text: cleanSpeechText,
-          model_id: 'eleven_turbo_v2_5',
-          voice_settings: {
-            stability: 0.85,
-            similarity_boost: 0.85,
-            style: 0.0,
-            use_speaker_boost: false,
-          },
-        }),
-      });
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer();
-        return Buffer.from(arrayBuffer).toString('base64');
-      }
-    } catch (err) {
-      console.warn('[ElevenLabs Fast TTS Error]', err);
-    }
-  }
-
   return null;
 }
 
@@ -326,9 +330,53 @@ router.post('/tts', async (req: Request, res: Response) => {
     }
 
     const cleanSpeechText = text.replace(/!+/g, '.');
-    const deepgramKey = getApiKey('DEEPGRAM_API_KEY') || getApiKey('NEXT_PUBLIC_DEEPGRAM_API_KEY');
 
-    // 1. Primary: Deepgram Priya / Asteria / Luna Gentle Female Voice Synthesis
+    // 1. Primary: ElevenLabs Female Voice (Sarah / Priya - Calm, Reassuring)
+    const elevenLabsKey = getApiKey('ELEVENLABS_API_KEY') || getApiKey('NEXT_PUBLIC_ELEVENLABS_API_KEY');
+    const targetVoiceId = voiceId || getApiKey('ELEVENLABS_VOICE_ID') || getApiKey('NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN') || 'EXAVITQu4vr4xnSDxMaL';
+
+    if (elevenLabsKey && elevenLabsKey.length > 5) {
+      const candidateVoices = [targetVoiceId, 'EXAVITQu4vr4xnSDxMaL', 'hpp4J3VqNfWAUOO0d1Us', 'Xb7hH8MSUJpSbSDYk0k2'];
+      for (const vId of candidateVoices) {
+        try {
+          const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'xi-api-key': elevenLabsKey,
+            },
+            body: JSON.stringify({
+              text: cleanSpeechText,
+              model_id: modelId || 'eleven_turbo_v2_5',
+              voice_settings: {
+                stability: 0.85,
+                similarity_boost: 0.85,
+                style: 0.0,
+                use_speaker_boost: false,
+              },
+            }),
+          });
+
+          if (response.ok) {
+            const arrayBuffer = await response.arrayBuffer();
+            const base64Audio = Buffer.from(arrayBuffer).toString('base64');
+            return res.json({
+              success: true,
+              provider: 'elevenlabs',
+              voiceId: vId,
+              modelId: modelId || 'eleven_turbo_v2_5',
+              languageCode,
+              audioBase64: base64Audio,
+            });
+          }
+        } catch (elErr) {
+          console.warn(`[ElevenLabs TTS Fetch Exception for ${vId}]`, elErr);
+        }
+      }
+    }
+
+    // 2. Secondary: Deepgram Female Synthesizer
+    const deepgramKey = getApiKey('DEEPGRAM_API_KEY') || getApiKey('NEXT_PUBLIC_DEEPGRAM_API_KEY');
     if (deepgramKey && deepgramKey.length > 5) {
       const candidateModels = [
         'aura-asteria-en',
@@ -337,7 +385,6 @@ router.post('/tts', async (req: Request, res: Response) => {
         'aura-athena-en',
         'aura-hera-en',
         'aura-2-priya-en',
-        'aura-priya-en',
       ];
 
       for (const model of candidateModels) {
@@ -365,43 +412,6 @@ router.post('/tts', async (req: Request, res: Response) => {
         } catch (dgErr) {
           console.warn(`[Deepgram TTS Fetch Exception for ${model}]`, dgErr);
         }
-      }
-    }
-
-    // 2. Secondary: ElevenLabs Fallback
-    const elevenLabsKey = getApiKey('ELEVENLABS_API_KEY') || getApiKey('NEXT_PUBLIC_ELEVENLABS_API_KEY');
-    const targetVoiceId = voiceId || getApiKey('ELEVENLABS_VOICE_ID') || getApiKey('NEXT_PUBLIC_ELEVENLABS_VOICE_ID_EN') || '21m00Tcm4TlvDq8ikWAM';
-
-    if (elevenLabsKey && elevenLabsKey.length > 5) {
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${targetVoiceId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': elevenLabsKey,
-        },
-        body: JSON.stringify({
-          text: cleanSpeechText,
-          model_id: modelId || 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.85,
-            similarity_boost: 0.85,
-            style: 0.0,
-            use_speaker_boost: false,
-          },
-        }),
-      });
-
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer();
-        const base64Audio = Buffer.from(arrayBuffer).toString('base64');
-        return res.json({
-          success: true,
-          provider: 'elevenlabs',
-          voiceId: targetVoiceId,
-          modelId: modelId || 'eleven_multilingual_v2',
-          languageCode,
-          audioBase64: base64Audio,
-        });
       }
     }
 
